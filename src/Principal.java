@@ -3,10 +3,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
+import javafx.scene.paint.*;
 import javafx.stage.Stage;
 
 public class Principal extends Application {
@@ -32,19 +29,21 @@ public class Principal extends Application {
         mainLayout.setPadding(new Insets(10));
         mainLayout.setAlignment(Pos.CENTER);
 
-        // Background Degradê
+        // Background Degradê com três cores
         BackgroundFill backgroundFill = new BackgroundFill(
                 new LinearGradient(
-                        0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#A241A8")),
-                        new Stop(1, Color.web("#65A538"))
+                        0, 0, 1, 1, // Posição do gradiente (do canto superior esquerdo ao inferior direito)
+                        true, CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.web("#A241A8")), // Cor inicial
+                        new Stop(0.4, Color.web("#BD6EC1")), // Cor intermediária
+                        new Stop(0.8, Color.web("#66DA14")), // Cor intermediária
+                        new Stop(1, Color.web("#65A538")) // Cor final65A538
                 ),
                 CornerRadii.EMPTY, Insets.EMPTY
         );
         mainLayout.setBackground(new Background(backgroundFill));
 
-        // Adiciona o layout à cena e exibe
-        Scene scene = new Scene(mainLayout, 800, 600);
+        Scene scene = new Scene(mainLayout, 1280, 720);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
