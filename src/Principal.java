@@ -2,10 +2,12 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
+
 
 public class Principal extends Application {
     private Card card;
@@ -43,10 +45,40 @@ public class Principal extends Application {
         );
         //Campo de texto para Limite:
         UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
-        TextField limiteField = new TextField("Limite");
+        TextField limiteField = new TextField();
         UIConfig.configureTextField(limiteField);
-        card.setLimiteCartao(Integer.getInteger(String.valueOf(limiteField)));
         GridPane.setHgrow(limiteField, Priority.NEVER);
+        limiteField.textProperty().addListener((obs, oldText, newText) ->
+        {
+            try {
+                //Substituir ponto por vírgula e bloquear texto
+                newText = newText.replace(",",".");
+                card.setLimiteCartao(newText.isEmpty() ? 0 : Integer.parseInt(newText));
+                } catch (NumberFormatException e) {
+                //atualização nula se o limite for invalido
+                card.setLimiteCartao(0);
+            }
+        });
+
+        //Campo de vencimento
+        UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
+        ComboBox<Integer> vencimentoCombo = new ComboBox<>();
+        UIConfig.configureComboBox(vencimentoCombo);
+        vencimentoCombo.getItems().addAll(card.getVencimento());
+        vencimentoCombo.getSelectionModel().selectFirst();
+        vencimentoCombo.setMinWidth(100);
+        vencimentoCombo.setMaxWidth(100);
+        vencimentoCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
+            card.setVencimento(new Integer[]{newValue});
+        });
+        GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
+
+        //Teste Layout
+        mainGrid.add(limiteCustom, 0, 0); // Adiciona limiteCustomLabel na coluna 0, linha 0
+        mainGrid.add(limiteField, 1, 0); // Adiciona limiteField na coluna 1, linha 0
+        mainGrid.add(vencimentoCustomLabel, 2, 0); // Adiciona vencimentoCustomLabel na coluna 2, linha 0
+        mainGrid.add(vencimentoCombo, 3, 0); // Adiciona vencimentoCombo na coluna 3, linha 0
+
 
         mainLayout.setBackground(new Background(backgroundFill));
         Scene scene = new Scene(mainLayout, 1280, 720);
