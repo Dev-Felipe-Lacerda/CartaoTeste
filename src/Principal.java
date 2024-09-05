@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
@@ -34,15 +35,20 @@ public class Principal extends Application {
                 new LinearGradient(
                         0, 0, 1, 1, // Posição do gradiente (do canto superior esquerdo ao inferior direito)
                         true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#A241A8")), // Cor inicial
-                        new Stop(0.4, Color.web("#BD6EC1")), // Cor intermediária
-                        new Stop(0.8, Color.web("#66DA14")), // Cor intermediária
-                        new Stop(1, Color.web("#65A538")) // Cor final65A538
+                        new Stop(0, Color.web("#5E48A3")), // Cor inicial
+                        new Stop(0.5, Color.web("#7B47A3")), // Cor inicial
+                        new Stop(1, Color.web("#A3487E")) // Cor final
                 ),
                 CornerRadii.EMPTY, Insets.EMPTY
         );
-        mainLayout.setBackground(new Background(backgroundFill));
+        //Campo de texto para Limite:
+        UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
+        TextField limiteField = new TextField("Limite");
+        UIConfig.configureTextField(limiteField);
+        card.setLimiteCartao(Integer.getInteger(String.valueOf(limiteField)));
+        GridPane.setHgrow(limiteField, Priority.NEVER);
 
+        mainLayout.setBackground(new Background(backgroundFill));
         Scene scene = new Scene(mainLayout, 1280, 720);
         primaryStage.setScene(scene);
         primaryStage.show();
