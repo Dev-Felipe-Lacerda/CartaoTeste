@@ -14,6 +14,10 @@ public class Principal extends Application {
     private Divida divida;
     private VBox dividasFields;
     private Button addButton;
+    private int addButtonClickCount =0;
+    private Scene scene;
+    private static final int INITIAL_HEIGHT = 350;
+    private static final int HEIGHT_INCREMENT = 78;
 
     @Override
     public void start(Stage primaryStage) {
@@ -120,9 +124,11 @@ public class Principal extends Application {
         // Adiciona o GridPane e o VBox ao layout principal
         mainLayout.getChildren().addAll(topPanel, mainGrid, dividasLayout);
         mainLayout.setBackground(new Background(backgroundFill));
-        Scene scene = new Scene(mainLayout, 960, 350);
+        //Ajuste da tela
+        Scene scene = new Scene(mainLayout, 960, INITIAL_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
+        this.scene = scene;
     }
 
     private void addDividaFields() {
@@ -155,6 +161,14 @@ public class Principal extends Application {
         dividaRow.getChildren().addAll(nmLabel, nomeDividaField, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo);
         // Adiciona o HBox ao VBox de dívidas
         dividasFields.getChildren().add(dividaRow);
+
+        //Ajuste da tela conforme o click (válido para a tela inicial, caso alterada, não funciona)
+        addButtonClickCount++;
+        if (addButtonClickCount >= 3) {
+            double newHeight = scene.getHeight() + HEIGHT_INCREMENT;
+            scene.getWindow().setHeight(newHeight);
+        }
+
     }
 
     public static void main(String[] args) {
