@@ -88,6 +88,7 @@ public class Principal extends Application {
         // Campo de texto para Limite:
         UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
         TextField limiteField = createLimiteField();
+        limiteField.setPromptText("0,00");
         GridPane.setHgrow(limiteField, Priority.NEVER);
 
         // Campo de vencimento
@@ -170,7 +171,12 @@ public class Principal extends Application {
         UIConfig.CustomLabel nmLabel = new UIConfig.CustomLabel("Nome da dívida: ");
         TextField nomeDividaField = new TextField();
         UIConfig.configureTextField(nomeDividaField);
-        nomeDividaField.setPromptText("Nome da Dívida");
+        nomeDividaField.setPromptText("Dívida");
+
+        UIConfig.CustomLabel vlLabel = new UIConfig.CustomLabel("Valor: ");
+        TextField vlDivida = new TextField();
+        UIConfig.configureTextField(vlDivida);
+        vlDivida.setPromptText("0,00");
 
         UIConfig.CustomLabel pclLabel = new UIConfig.CustomLabel("Parcelas: ");
         ComboBox<Integer> parcelasCombo = new ComboBox<>();
@@ -188,7 +194,7 @@ public class Principal extends Application {
         mesDividaCombo.getItems().addAll(divida.getMesDivida());
         mesDividaCombo.getSelectionModel().selectFirst();
 
-        dividaRow.getChildren().addAll(nmLabel, nomeDividaField, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo);
+        dividaRow.getChildren().addAll(nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo);
         dividasFields.getChildren().add(dividaRow);
 
         // Incrementa o contador e ajusta a altura da cena se necessário
