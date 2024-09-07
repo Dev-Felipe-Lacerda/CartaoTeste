@@ -14,10 +14,12 @@ public class Principal extends Application {
     private Divida divida;
     private VBox dividasFields;
     private Button addButton;
-    private int addButtonClickCount =0;
+    private int addButtonClickCount = 0; // Variável para contar cliques no botão
     private Scene scene;
     private static final int INITIAL_HEIGHT = 350;
     private static final int HEIGHT_INCREMENT = 78;
+    private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
+    private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
 
     @Override
     public void start(Stage primaryStage) {
@@ -31,6 +33,36 @@ public class Principal extends Application {
         VBox mainLayout = new VBox(10);
 
         // Painel superior
+        HBox topPanel = createTopPanel();
+
+        // GridPane para layout
+        GridPane mainGrid = createMainGrid();
+
+        // VBox para armazenar campos de dívidas
+        dividasFields = new VBox(5);
+        dividasFields.setAlignment(Pos.CENTER);
+        dividasFields.setMinHeight(100);
+
+        // Botão para adicionar dívidas
+        addButton = createAddButton();
+
+        // Cria um VBox para os campos de dívidas e o botão
+        VBox dividasLayout = new VBox(10);
+        dividasLayout.setAlignment(Pos.CENTER);
+        dividasLayout.getChildren().addAll(dividasFields, addButton);
+
+        // Adiciona o GridPane e o VBox ao layout principal
+        mainLayout.getChildren().addAll(topPanel, mainGrid, dividasLayout);
+        mainLayout.setBackground(createBackground());
+
+        // Inicializa a Scene e a altura inicial
+        scene = new Scene(mainLayout, 960, INITIAL_HEIGHT);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        this.scene = scene;
+    }
+
+    private HBox createTopPanel() {
         HBox topPanel = new HBox();
         topPanel.setPadding(new Insets(10));
         topPanel.setSpacing(10);
@@ -43,15 +75,77 @@ public class Principal extends Application {
         titleLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
         topPanel.getChildren().add(titleLabel);
 
-        // GridPane para layout
+        return topPanel;
+    }
+
+    private GridPane createMainGrid() {
         GridPane mainGrid = new GridPane();
         mainGrid.setPadding(new Insets(10));
         mainGrid.setHgap(10);
         mainGrid.setVgap(10);
         mainGrid.setAlignment(Pos.CENTER);
 
-        // Background Degradê com três cores
-        BackgroundFill backgroundFill = new BackgroundFill(
+        // Campo de texto para Limite:
+        UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
+        TextField limiteField = createLimiteField();
+        GridPane.setHgrow(limiteField, Priority.NEVER);
+
+        // Campo de vencimento
+        UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
+        ComboBox<Integer> vencimentoCombo = createVencimentoCombo();
+        GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
+
+        // Adicione os elementos ao GridPane
+        mainGrid.add(limiteCustom, 0, 0);
+        mainGrid.add(limiteField, 1, 0);
+        mainGrid.add(vencimentoCustomLabel, 2, 0);
+        mainGrid.add(vencimentoCombo, 3, 0);
+
+        return mainGrid;
+    }
+
+    private TextField createLimiteField() {
+        TextField limiteField = new TextField();
+        UIConfig.configureTextField(limiteField);
+        limiteField.textProperty().addListener((obs, oldText, newText) -> {
+            try {
+                newText = newText.replace(",", ".");
+                card.setLimiteCartao(newText.isEmpty() ? 0 : (int) Float.parseFloat(newText));
+            } catch (NumberFormatException e) {
+                card.setLimiteCartao(0);
+            }
+        });
+        return limiteField;
+    }
+
+    private ComboBox<Integer> createVencimentoCombo() {
+        ComboBox<Integer> vencimentoCombo = new ComboBox<>();
+        UIConfig.configureComboBox(vencimentoCombo);
+        vencimentoCombo.getItems().addAll(divida.getMesDivida());
+        vencimentoCombo.getSelectionModel().selectFirst();
+        vencimentoCombo.setMinWidth(100);
+        vencimentoCombo.setMaxWidth(100);
+        return vencimentoCombo;
+    }
+
+    private Button createAddButton() {
+        Button addButton = new Button("Adicionar Dívida");
+        addButton.setOnAction(e -> addDividaFields());
+        addButton.setPrefWidth(250);
+        addButton.setMaxWidth(250);
+        addButton.setMinWidth(250);
+        addButton.setAlignment(Pos.CENTER);
+        addButton.setStyle(BUTTON_STYLE);
+        addButton.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                addButton.setStyle(BUTTON_FOCUSED_STYLE);
+            }
+        });
+        return addButton;
+    }
+
+    private Background createBackground() {
+        return new Background(new BackgroundFill(
                 new LinearGradient(
                         0, 0, 1, 1, // Posição do gradiente (do canto superior esquerdo ao inferior direito)
                         true, CycleMethod.NO_CYCLE,
@@ -60,82 +154,19 @@ public class Principal extends Application {
                         new Stop(1, Color.web("#A3487E")) // Cor final
                 ),
                 CornerRadii.EMPTY, Insets.EMPTY
-        );
-
-        // Campo de texto para Limite:
-        UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
-        TextField limiteField = new TextField();
-        UIConfig.configureTextField(limiteField);
-        GridPane.setHgrow(limiteField, Priority.NEVER);
-        limiteField.textProperty().addListener((obs, oldText, newText) -> {
-            try {
-                // Substituir ponto por vírgula e bloquear texto
-                newText = newText.replace(",", ".");
-                card.setLimiteCartao(newText.isEmpty() ? 0 : (int) Float.parseFloat(newText));
-            } catch (NumberFormatException e) {
-                // Atualização nula se o limite for inválido
-                card.setLimiteCartao(0);
-            }
-        });
-
-        // Campo de vencimento
-        UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
-        ComboBox<Integer> vencimentoCombo = new ComboBox<>();
-        UIConfig.configureComboBox(vencimentoCombo);
-        vencimentoCombo.getItems().addAll(divida.getMesDivida()); // Usando divida.getMesDivida() em vez de card
-        vencimentoCombo.getSelectionModel().selectFirst();
-        vencimentoCombo.setMinWidth(100);
-        vencimentoCombo.setMaxWidth(100);
-        vencimentoCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
-            // Ajuste conforme necessário
-        });
-        GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
-
-        // VBox para armazenar campos de dívidas
-        dividasFields = new VBox(5);
-        dividasFields.setAlignment(Pos.CENTER);
-        dividasFields.setMinHeight(100);
-
-        // Botão para adicionar dívidas
-        addButton = new Button("Adicionar Dívida");
-        addButton.setOnAction(e -> addDividaFields());
-        addButton.setPrefWidth(250); // Define um tamanho preferido
-        addButton.setMaxWidth(250); // Define a largura máxima
-        addButton.setMinWidth(250); // Define a largura mínima
-        addButton.setAlignment(Pos.CENTER);
-        addButton.setStyle("-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
-        addButton.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (isNowFocused) {
-                addButton.setStyle("-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
-            }
-        });
-
-        // Adicione os elementos ao GridPane
-        mainGrid.add(limiteCustom, 0, 0);
-        mainGrid.add(limiteField, 1, 0);
-        mainGrid.add(vencimentoCustomLabel, 2, 0);
-        mainGrid.add(vencimentoCombo, 3, 0);
-
-        // Cria um VBox para os campos de dívidas e o botão
-        VBox dividasLayout = new VBox(10);
-        dividasLayout.setAlignment(Pos.CENTER);
-        dividasLayout.getChildren().addAll(dividasFields, addButton);
-
-        // Adiciona o GridPane e o VBox ao layout principal
-        mainLayout.getChildren().addAll(topPanel, mainGrid, dividasLayout);
-        mainLayout.setBackground(new Background(backgroundFill));
-        //Ajuste da tela
-        Scene scene = new Scene(mainLayout, 960, INITIAL_HEIGHT);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        this.scene = scene;
+        ));
     }
 
     private void addDividaFields() {
+        if (this.scene != null) {
+            double height = this.scene.getHeight();
+        } else {
+            System.out.println("A cena ainda não foi inicializada.");
+        }
+
         HBox dividaRow = new HBox(10);
         dividaRow.setAlignment(Pos.CENTER);
 
-        // Cria novos campos de dívida
         UIConfig.CustomLabel nmLabel = new UIConfig.CustomLabel("Nome da dívida: ");
         TextField nomeDividaField = new TextField();
         UIConfig.configureTextField(nomeDividaField);
@@ -157,21 +188,18 @@ public class Principal extends Application {
         mesDividaCombo.getItems().addAll(divida.getMesDivida());
         mesDividaCombo.getSelectionModel().selectFirst();
 
-        // Adiciona os campos ao HBox
         dividaRow.getChildren().addAll(nmLabel, nomeDividaField, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo);
-        // Adiciona o HBox ao VBox de dívidas
         dividasFields.getChildren().add(dividaRow);
 
-        //Ajuste da tela conforme o click (válido para a tela inicial, caso alterada, não funciona)
+        // Incrementa o contador e ajusta a altura da cena se necessário
         addButtonClickCount++;
         if (addButtonClickCount >= 3) {
             double newHeight = scene.getHeight() + HEIGHT_INCREMENT;
             scene.getWindow().setHeight(newHeight);
         }
-
     }
 
     public static void main(String[] args) {
-        launch(args); // Inicia a aplicação JavaFX
+        launch(args);
     }
 }
