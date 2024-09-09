@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -14,12 +15,17 @@ public class Principal extends Application {
     private Divida divida;
     private VBox dividasFields;
     private Button addButton;
-    private int addButtonClickCount = 0; // Variável para contar cliques no botão
+    private Button calcularButton;
+    private Label totalLabel;
+    private int addButtonClickCount = 0;
     private Scene scene;
-    private static final int INITIAL_HEIGHT = 350;
+    private static final int INITIAL_HEIGHT = 450;
     private static final int HEIGHT_INCREMENT = 78;
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
+    private static final String TOTAL_LABEL_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold;";
+    private static final String TOTAL_LABEL_NORMAL_STYLE = TOTAL_LABEL_STYLE + "-fx-text-fill: white;";
+    private static final String TOTAL_LABEL_ALERT_STYLE = TOTAL_LABEL_STYLE + "-fx-text-fill: yellow;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -46,10 +52,18 @@ public class Principal extends Application {
         // Botão para adicionar dívidas
         addButton = createAddButton();
 
-        // Cria um VBox para os campos de dívidas e o botão
+        // Botão para calcular
+        calcularButton = createCalcularButton();
+
+        // Label para mostrar total e mensagem de alerta
+        totalLabel = new Label();
+        totalLabel.setStyle(TOTAL_LABEL_NORMAL_STYLE);
+        updateTotalLabel(0, false); // Inicializa o LabelTotal
+
+        // Cria um VBox para os campos de dívidas, o botão e o LabelTotal
         VBox dividasLayout = new VBox(10);
         dividasLayout.setAlignment(Pos.CENTER);
-        dividasLayout.getChildren().addAll(dividasFields, addButton);
+        dividasLayout.getChildren().addAll(dividasFields, addButton, totalLabel, calcularButton);
 
         // Adiciona o GridPane e o VBox ao layout principal
         mainLayout.getChildren().addAll(topPanel, mainGrid, dividasLayout);
@@ -59,7 +73,6 @@ public class Principal extends Application {
         scene = new Scene(mainLayout, 960, INITIAL_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
-        this.scene = scene;
     }
 
     private HBox createTopPanel() {
@@ -112,8 +125,10 @@ public class Principal extends Application {
             try {
                 newText = newText.replace(",", ".");
                 card.setLimiteCartao(newText.isEmpty() ? 0 : (int) Float.parseFloat(newText));
+                updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
             } catch (NumberFormatException e) {
                 card.setLimiteCartao(0);
+                updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
             }
         });
         return limiteField;
@@ -145,6 +160,22 @@ public class Principal extends Application {
         return addButton;
     }
 
+    private Button createCalcularButton() {
+        Button calcularButton = new Button("Faturas");
+        calcularButton.setOnAction(e -> openCalculationWindow());
+        calcularButton.setPrefWidth(250);
+        calcularButton.setMaxWidth(250);
+        calcularButton.setMinWidth(250);
+        calcularButton.setAlignment(Pos.CENTER);
+        calcularButton.setStyle(BUTTON_STYLE);
+        calcularButton.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                calcularButton.setStyle(BUTTON_FOCUSED_STYLE);
+            }
+        });
+        return calcularButton;
+    }
+
     private Background createBackground() {
         return new Background(new BackgroundFill(
                 new LinearGradient(
@@ -159,12 +190,6 @@ public class Principal extends Application {
     }
 
     private void addDividaFields() {
-        if (this.scene != null) {
-            double height = this.scene.getHeight();
-        } else {
-            System.out.println("A cena ainda não foi inicializada.");
-        }
-
         HBox dividaRow = new HBox(10);
         dividaRow.setAlignment(Pos.CENTER);
 
@@ -178,6 +203,10 @@ public class Principal extends Application {
         UIConfig.configureTextField(vlDivida);
         vlDivida.setPromptText("0,00");
 
+        // Adicionar um listener para atualizar o total em tempo real
+        vlDivida.textProperty().addListener((obs, oldText, newText) -> {
+            updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+        });
         UIConfig.CustomLabel pclLabel = new UIConfig.CustomLabel("Parcelas: ");
         ComboBox<Integer> parcelasCombo = new ComboBox<>();
         UIConfig.configureComboBox(parcelasCombo);
@@ -203,6 +232,49 @@ public class Principal extends Application {
             double newHeight = scene.getHeight() + HEIGHT_INCREMENT;
             scene.getWindow().setHeight(newHeight);
         }
+
+        // Atualiza o total e a mensagem de alerta
+        updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+    }
+
+    private double calculateTotalDividas() {
+        double total = 0;
+        for (int i = 0; i < dividasFields.getChildren().size(); i++) {
+            HBox dividaRow = (HBox) dividasFields.getChildren().get(i);
+            TextField valorField = (TextField) dividaRow.getChildren().get(3); // A quarta coluna é o valor
+            try {
+                String text = valorField.getText().replace(",", ".");
+                total += text.isEmpty() ? 0 : Double.parseDouble(text);
+            } catch (NumberFormatException e) {
+                // Ignorar valores inválidos
+            }
+        }
+        return total;
+    }
+
+    private void updateTotalLabel(double total, boolean exceedLimit) {
+        totalLabel.setText(String.format("Total das Dívidas: %.2f%s", total, exceedLimit ? " (Acima do limite!)" : ""));
+        totalLabel.setStyle(exceedLimit ? TOTAL_LABEL_ALERT_STYLE : TOTAL_LABEL_NORMAL_STYLE);
+    }
+
+    private void openCalculationWindow() {
+        Stage calculationStage = new Stage();
+        calculationStage.setTitle("Calculadora de Dívidas");
+
+        // Criar um layout semelhante ao da janela principal
+        VBox calculationLayout = new VBox(10);
+        calculationLayout.setAlignment(Pos.CENTER);
+        calculationLayout.setBackground(createBackground());
+
+        // Adicionar o título
+        Label titleLabel = new Label("Label das faturas");
+        titleLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
+        calculationLayout.getChildren().add(titleLabel);
+
+        // Defina o tamanho da nova janela
+        Scene calculationScene = new Scene(calculationLayout, 400, 300);
+        calculationStage.setScene(calculationScene);
+        calculationStage.show();
     }
 
     public static void main(String[] args) {
