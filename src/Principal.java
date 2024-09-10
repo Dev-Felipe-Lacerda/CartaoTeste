@@ -88,7 +88,7 @@ public class Principal extends Application {
                 Color.web("#28274B"), CornerRadii.EMPTY, Insets.EMPTY)));
 
         // Título intuitivo
-        UIConfig.CustomLabel titleLabel = new UIConfig.CustomLabel("Informações do Usuário");
+        UIConfig.CustomLabel titleLabel = new UIConfig.CustomLabel("Informações da Dívida");
         titleLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
         topPanel.getChildren().add(titleLabel);
 
@@ -290,19 +290,15 @@ public class Principal extends Application {
 
     private void updateTotalLabel(double total, boolean exceedLimit) {
         String message = String.format("Total das Dívidas: %.2f%s", total, exceedLimit ? " (Acima do limite!)" : "");
-        String textColor = "white";
         String backgroundColor = exceedLimit ? "#4F1609" : "#0C0812";
-
         // Define o texto do Label
         totalLabel.setText(message);
-        totalLabel.setStyle(String.format(
-                "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: %s; -fx-padding: 10;", textColor));
+        totalLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
 
-        // Define o fundo do Label com padding e bordas arredondadas
         totalLabel.setBackground(new Background(new BackgroundFill(
                 Color.web(backgroundColor),
-                new CornerRadii(5),  // Bordas arredondadas com raio de 10
-                new Insets(-5)        // Ajusta o tamanho visual do fundo (negativo para aumentar)
+                new CornerRadii(5),
+                new Insets(-5)
         )));
 
         // Define a borda do Label
