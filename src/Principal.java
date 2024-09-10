@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -14,18 +15,16 @@ public class Principal extends Application {
     private Card card;
     private Divida divida;
     private VBox dividasFields;
-    private Button addButton;
-    private Button calcularButton;
     private Label totalLabel;
     private int addButtonClickCount = 0;
     private Scene scene;
+
     private static final int INITIAL_HEIGHT = 450;
     private static final int HEIGHT_INCREMENT = 36;
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
     private static final String TOTAL_LABEL_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold;";
     private static final String TOTAL_LABEL_NORMAL_STYLE = TOTAL_LABEL_STYLE + "-fx-text-fill: white;";
-    private static final String TOTAL_LABEL_ALERT_STYLE = TOTAL_LABEL_STYLE + "-fx-text-fill: yellow;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -50,10 +49,10 @@ public class Principal extends Application {
         dividasFields.setMinHeight(100);
 
         // Botão para adicionar dívidas
-        addButton = createAddButton();
+        Button addButton = createAddButton();
 
         // Botão para calcular
-        calcularButton = createCalcularButton();
+        Button calcularButton = createCalcularButton();
 
         // Label para mostrar total e mensagem de alerta
         totalLabel = new Label();
@@ -63,10 +62,15 @@ public class Principal extends Application {
         // Cria um VBox para os campos de dívidas, o botão e o LabelTotal
         VBox dividasLayout = new VBox(10);
         dividasLayout.setAlignment(Pos.CENTER);
-        dividasLayout.getChildren().addAll(dividasFields, addButton, totalLabel, calcularButton);
+        dividasLayout.getChildren().addAll(dividasFields, addButton, calcularButton);
+
+        // Cria um VBox para o layout totalLabel e dividasLayout
+        VBox bottomLayout = new VBox(10);
+        bottomLayout.setAlignment(Pos.BOTTOM_CENTER); // Alinha o totalLabel no fundo
+        bottomLayout.getChildren().addAll(dividasLayout, totalLabel);
 
         // Adiciona o GridPane e o VBox ao layout principal
-        mainLayout.getChildren().addAll(topPanel, mainGrid, dividasLayout);
+        mainLayout.getChildren().addAll(topPanel, mainGrid, bottomLayout);
         mainLayout.setBackground(createBackground());
 
         // Inicializa a Scene e a altura inicial
@@ -217,9 +221,7 @@ public class Principal extends Application {
         TextField vlDivida = new TextField();
         UIConfig.configureTextField(vlDivida);
         vlDivida.setPromptText("0,00");
-        vlDivida.textProperty().addListener((obs, oldText, newText) -> {
-            updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
-        });
+        vlDivida.textProperty().addListener((obs, oldText, newText) -> updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao()));
 
         UIConfig.CustomLabel pclLabel = new UIConfig.CustomLabel("Parcelas: ");
         ComboBox<Integer> parcelasCombo = new ComboBox<>();
@@ -238,6 +240,17 @@ public class Principal extends Application {
         mesDividaCombo.getSelectionModel().selectFirst();
 
         // Botão Excluir
+        Button excluirButton = getButton(dividaRow);
+        dividaRow.getChildren().addAll(tipoDividaLabel, nichoCombo, nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo, excluirButton);
+        dividasFields.getChildren().add(dividaRow);
+        addButtonClickCount++;
+
+        // Ajusta a altura ao adicionar
+        adjustWindowHeight();
+        updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+    }
+
+    private Button getButton(HBox dividaRow) {
         Button excluirButton = new Button("Excluir");
         excluirButton.setStyle("-fx-background-color:#921710 ; -fx-text-fill: white; -fx-font-weight: bold;");
         excluirButton.setMinHeight(35);
@@ -249,13 +262,7 @@ public class Principal extends Application {
             adjustWindowHeight();
             updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
         });
-        dividaRow.getChildren().addAll(tipoDividaLabel, nichoCombo, nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo, excluirButton);
-        dividasFields.getChildren().add(dividaRow);
-        addButtonClickCount++;
-
-        // Ajusta a altura ao adicionar
-        adjustWindowHeight();
-        updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+        return excluirButton;
     }
 
     private void adjustWindowHeight() {
@@ -282,26 +289,136 @@ public class Principal extends Application {
     }
 
     private void updateTotalLabel(double total, boolean exceedLimit) {
-        totalLabel.setText(String.format("Total das Dívidas: %.2f%s", total, exceedLimit ? " (Acima do limite!)" : ""));
-        totalLabel.setStyle(exceedLimit ? TOTAL_LABEL_ALERT_STYLE : TOTAL_LABEL_NORMAL_STYLE);
+        String message = String.format("Total das Dívidas: %.2f%s", total, exceedLimit ? " (Acima do limite!)" : "");
+        String textColor = "white";
+        String backgroundColor = exceedLimit ? "#4F1609" : "#0C0812";
+
+        // Define o texto do Label
+        totalLabel.setText(message);
+        totalLabel.setStyle(String.format(
+                "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: %s; -fx-padding: 10;", textColor));
+
+        // Define o fundo do Label com padding e bordas arredondadas
+        totalLabel.setBackground(new Background(new BackgroundFill(
+                Color.web(backgroundColor),
+                new CornerRadii(5),  // Bordas arredondadas com raio de 10
+                new Insets(-5)        // Ajusta o tamanho visual do fundo (negativo para aumentar)
+        )));
+
+        // Define a borda do Label
+        totalLabel.setBorder(new Border(new BorderStroke(
+                Color.TRANSPARENT,
+                BorderStrokeStyle.SOLID,
+                new CornerRadii(5),
+                BorderWidths.DEFAULT
+        )));
     }
 
     private void openCalculationWindow() {
         Stage calculationStage = new Stage();
-        calculationStage.setTitle("Calculadora de Dívidas");
+        calculationStage.setTitle("Faturas");
 
-        // Criar um layout semelhante ao da janela principal
+        // Criar um layout para a nova janela
         VBox calculationLayout = new VBox(10);
         calculationLayout.setAlignment(Pos.CENTER);
+        calculationLayout.setPadding(new Insets(10));
         calculationLayout.setBackground(createBackground());
 
         // Adicionar o título
-        Label titleLabel = new Label("Label das faturas");
+        Label titleLabel = new Label("Faturas");
         titleLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
         calculationLayout.getChildren().add(titleLabel);
 
+        // Iterar sobre todas as dívidas e adicionar Labels formatados
+        for (int i = 0; i < dividasFields.getChildren().size(); i++) {
+            HBox dividaRow = (HBox) dividasFields.getChildren().get(i);
+
+            // Verificar e obter o TextField para o nome
+            Node nomeNode = dividaRow.getChildren().get(3);
+            TextField nomeField = (nomeNode instanceof TextField) ? (TextField) nomeNode : null;
+
+            // Verificar e obter o ComboBox para o tipo
+            Node tipoNode = dividaRow.getChildren().get(1);
+            ComboBox<?> tipoCombo = (tipoNode instanceof ComboBox<?>) ? (ComboBox<?>) tipoNode : null;
+
+            // Verificar e obter o TextField para o valor
+            Node valorNode = dividaRow.getChildren().get(5);
+            TextField valorField = (valorNode instanceof TextField) ? (TextField) valorNode : null;
+
+            // Verificar e obter o ComboBox para as parcelas
+            Node parcelasNode = dividaRow.getChildren().get(7);
+            ComboBox<?> parcelasCombo = (parcelasNode instanceof ComboBox<?>) ? (ComboBox<?>) parcelasNode : null;
+
+            // Verificar e obter o ComboBox para o dia
+            Node diaNode = dividaRow.getChildren().get(9);
+            ComboBox<?> diaCombo = (diaNode instanceof ComboBox<?>) ? (ComboBox<?>) diaNode : null;
+
+            // Verificar e obter o ComboBox para o mês
+            Node mesNode = dividaRow.getChildren().get(10);
+            ComboBox<?> mesCombo = (mesNode instanceof ComboBox<?>) ? (ComboBox<?>) mesNode : null;
+
+            // Cast adicional para tipos específicos, se necessário
+            ComboBox<String> tipoComboString = null;
+            ComboBox<Integer> parcelasComboInt = null;
+            ComboBox<Integer> diaComboInt = null;
+            ComboBox<Integer> mesComboInt = null;
+
+            if (tipoCombo != null) {
+                @SuppressWarnings("unchecked")
+                ComboBox<String> tipoComboStringTemp = (ComboBox<String>) tipoCombo;
+                tipoComboString = tipoComboStringTemp;
+            }
+
+            if (parcelasCombo != null) {
+                @SuppressWarnings("unchecked")
+                ComboBox<Integer> parcelasComboIntTemp = (ComboBox<Integer>) parcelasCombo;
+                parcelasComboInt = parcelasComboIntTemp;
+            }
+
+            if (diaCombo != null) {
+                @SuppressWarnings("unchecked")
+                ComboBox<Integer> diaComboIntTemp = (ComboBox<Integer>) diaCombo;
+                diaComboInt = diaComboIntTemp;
+            }
+
+            if (mesCombo != null) {
+                @SuppressWarnings("unchecked")
+                ComboBox<Integer> mesComboIntTemp = (ComboBox<Integer>) mesCombo;
+                mesComboInt = mesComboIntTemp;
+            }
+
+            // Continuar apenas se todos os componentes estiverem presentes
+            if (nomeField != null && tipoComboString != null && valorField != null && parcelasComboInt != null && diaComboInt != null && mesComboInt != null) {
+                // Formatar a data
+                String dataCompra = String.format("%02d/%02d", diaComboInt.getValue(), mesComboInt.getValue());
+
+                // Obter valores ou definir padrão
+                String nome = nomeField.getText().isEmpty() ? "Não definido" : nomeField.getText();
+                String tipo = tipoComboString.getValue() != null ? tipoComboString.getValue() : "Não definido";
+
+                // Criar o Label para cada dívida
+                try {
+                    double valor = Double.parseDouble(valorField.getText().replace(",", "."));
+                    Label dividaLabel = new Label(String.format(
+                            "Nome: %s | Tipo: %s | Valor: %.2f | Parcelas: %d | Data da Compra: %s",
+                            nome,
+                            tipo,
+                            valor,
+                            parcelasComboInt.getValue(),
+                            dataCompra
+                    ));
+                    dividaLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
+
+                    // Adicionar o Label ao layout
+                    calculationLayout.getChildren().add(dividaLabel);
+                } catch (NumberFormatException e) {
+                    // Ignorar dívidas com valores inválidos
+                }
+            }
+        }
+
         // Defina o tamanho da nova janela
-        Scene calculationScene = new Scene(calculationLayout, 400, 300);
+        Scene calculationScene = new Scene(calculationLayout, 1280, 720);
         calculationStage.setScene(calculationScene);
         calculationStage.show();
     }
