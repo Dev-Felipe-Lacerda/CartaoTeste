@@ -39,6 +39,7 @@ public class UIConfig {
             }
         });
 
+
         // Configura o estilo do item selecionado
         comboBox.setButtonCell(new ListCell<>() {
             @Override
@@ -60,6 +61,57 @@ public class UIConfig {
                 comboBox.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
             } else {
                 comboBox.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+            }
+        });
+    }
+    public static void stringComboBox(ComboBox<String> comboString) {
+        comboString.setPrefWidth(175); // Define um tamanho preferido
+        comboString.setMaxWidth(175); // Define a largura máxima
+        comboString.setMinWidth(175); // Define a largura mínima
+        comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        // Configura o estilo dos itens dentro do ComboBox
+        comboString.setCellFactory(new Callback<>() {
+            @Override
+            public ListCell<String> call(ListView<String> param) {
+                return new ListCell<>() {
+                    @Override
+                    protected void updateItem(String nic, boolean empty) {
+                        super.updateItem(nic, empty);
+                        if (nic == null || empty) {
+                            setText(null);
+                        } else {
+                            setText(nic.toString());
+                            setTextFill(Color.WHITE); // Define a cor do texto como branca
+                            setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                        }
+                    }
+                };
+            }
+        });
+
+
+        // Configura o estilo do item selecionado
+        comboString.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String nic, boolean empty) {
+                super.updateItem(nic, empty);
+                if (nic == null || empty) {
+                    setText(null);
+                } else {
+                    setText(nic.toString());
+                    setTextFill(Color.WHITE); // Define a cor do texto como branca
+                    setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        // Adiciona o contorno difuso branco quando focado
+        comboString.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
+            } else {
+                comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
             }
         });
     }

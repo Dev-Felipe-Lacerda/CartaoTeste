@@ -20,7 +20,7 @@ public class Principal extends Application {
     private int addButtonClickCount = 0;
     private Scene scene;
     private static final int INITIAL_HEIGHT = 450;
-    private static final int HEIGHT_INCREMENT = 78;
+    private static final int HEIGHT_INCREMENT = 36;
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
     private static final String TOTAL_LABEL_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold;";
@@ -70,7 +70,7 @@ public class Principal extends Application {
         mainLayout.setBackground(createBackground());
 
         // Inicializa a Scene e a altura inicial
-        scene = new Scene(mainLayout, 960, INITIAL_HEIGHT);
+        scene = new Scene(mainLayout, 1280, INITIAL_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -193,20 +193,34 @@ public class Principal extends Application {
         HBox dividaRow = new HBox(10);
         dividaRow.setAlignment(Pos.CENTER);
 
+        UIConfig.CustomLabel tipoDividaLabel = new UIConfig.CustomLabel("Tipo: ");
+        ComboBox<String> nichoCombo = new ComboBox<>();
+        UIConfig.stringComboBox(nichoCombo);
+        nichoCombo.getItems().addAll(divida.getNichos());
+
         UIConfig.CustomLabel nmLabel = new UIConfig.CustomLabel("Nome da dívida: ");
         TextField nomeDividaField = new TextField();
-        UIConfig.configureTextField(nomeDividaField);
-        nomeDividaField.setPromptText("Dívida");
+        nomeDividaField.setPrefWidth(100);
+        nomeDividaField.setMaxWidth(100);
+        nomeDividaField.setMinWidth(100);
+        nomeDividaField.setPromptText("Ex: Roupas");
+        nomeDividaField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+        nomeDividaField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                nomeDividaField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
+            } else {
+                nomeDividaField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+            }
+        });
 
         UIConfig.CustomLabel vlLabel = new UIConfig.CustomLabel("Valor: ");
         TextField vlDivida = new TextField();
         UIConfig.configureTextField(vlDivida);
         vlDivida.setPromptText("0,00");
-
-        // Adicionar um listener para atualizar o total em tempo real
         vlDivida.textProperty().addListener((obs, oldText, newText) -> {
             updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
         });
+
         UIConfig.CustomLabel pclLabel = new UIConfig.CustomLabel("Parcelas: ");
         ComboBox<Integer> parcelasCombo = new ComboBox<>();
         UIConfig.configureComboBox(parcelasCombo);
@@ -223,25 +237,40 @@ public class Principal extends Application {
         mesDividaCombo.getItems().addAll(divida.getMesDivida());
         mesDividaCombo.getSelectionModel().selectFirst();
 
-        dividaRow.getChildren().addAll(nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo);
+        // Botão Excluir
+        Button excluirButton = new Button("Excluir");
+        excluirButton.setStyle("-fx-background-color:#921710 ; -fx-text-fill: white; -fx-font-weight: bold;");
+        excluirButton.setMinHeight(35);
+        excluirButton.setOnAction(e -> {
+            dividasFields.getChildren().remove(dividaRow);
+            addButtonClickCount--; // Reduz o contador de cliques
+
+            // Ajustar a altura ao remover
+            adjustWindowHeight();
+            updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+        });
+        dividaRow.getChildren().addAll(tipoDividaLabel, nichoCombo, nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo, excluirButton);
         dividasFields.getChildren().add(dividaRow);
-
-        // Incrementa o contador e ajusta a altura da cena se necessário
         addButtonClickCount++;
-        if (addButtonClickCount >= 3) {
-            double newHeight = scene.getHeight() + HEIGHT_INCREMENT;
-            scene.getWindow().setHeight(newHeight);
-        }
 
-        // Atualiza o total e a mensagem de alerta
+        // Ajusta a altura ao adicionar
+        adjustWindowHeight();
         updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+    }
+
+    private void adjustWindowHeight() {
+        double newHeight = INITIAL_HEIGHT + (addButtonClickCount * HEIGHT_INCREMENT);
+        if (newHeight < INITIAL_HEIGHT) {
+            newHeight = INITIAL_HEIGHT;
+        }
+        scene.getWindow().setHeight(newHeight);
     }
 
     private double calculateTotalDividas() {
         double total = 0;
         for (int i = 0; i < dividasFields.getChildren().size(); i++) {
             HBox dividaRow = (HBox) dividasFields.getChildren().get(i);
-            TextField valorField = (TextField) dividaRow.getChildren().get(3); // A quarta coluna é o valor
+            TextField valorField = (TextField) dividaRow.getChildren().get(5); //
             try {
                 String text = valorField.getText().replace(",", ".");
                 total += text.isEmpty() ? 0 : Double.parseDouble(text);
