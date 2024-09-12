@@ -63,9 +63,9 @@ public class Principal extends Application {
 
         // Sombra branca
         DropShadow shadow = new DropShadow();
-        shadow.setColor(Color.WHITE);
-        shadow.setRadius(5);
-        shadow.setSpread(0.01);
+        shadow.setColor(Color.web("#FFFFFF80"));
+        shadow.setRadius(20);
+        shadow.setSpread(0.001);
 
         // Declaração dos botões
         Button option1 = new Button("Cartão");
@@ -76,9 +76,9 @@ public class Principal extends Application {
         option3.setMinWidth(200);
 
         // Configurações para cada botão
-        option1.setStyle("-fx-background-color: null; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+        option1.setStyle("-fx-background-color: #0000001A ; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option1.setOnAction(e -> handleOption(createMainGrid(), createLimiteField(), createVencimentoCombo(), shadow, option1, option2, option3, "#245154"));
-        option2.setStyle("-fx-background-color: null; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+        option2.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3, "#8A7DB0"));
 
         // Adiciona os botões na lateral esquerda
