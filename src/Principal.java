@@ -14,15 +14,10 @@ public class Principal extends Application {
     private Divida divida;
     private VBox dividasFields;
     private Label totalLabel;
-    private Scene scene;
-    private Label label;
     private VBox rightVBox;
-    private GridPane mainGrid;
 
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
-    private static final String TOTAL_LABEL_STYLE = "-fx-font-size: 16px; -fx-font-weight: bold;";
-    private static final String TOTAL_LABEL_NORMAL_STYLE = TOTAL_LABEL_STYLE + "-fx-text-fill: white;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -44,7 +39,7 @@ public class Principal extends Application {
         dividasFields.setAlignment(Pos.CENTER);
 
         // Label que será atualizada com base na opção selecionada
-        label = new Label("Selecione uma opção");
+        Label label = new Label("Selecione uma opção");
         label.setStyle("-fx-font-size: 18px; -fx-text-fill: black;");
         rightVBox.getChildren().add(label);
 
@@ -54,9 +49,7 @@ public class Principal extends Application {
         rightVBox.getChildren().add(totalLabel);  // Adiciona o totalLabel ao rightVBox
 
         // Ajuste a largura do totalLabel conforme a largura do rightVBox
-        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            totalLabel.setMaxWidth((Double) newWidth);
-        });
+        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> totalLabel.setMaxWidth((Double) newWidth));
 
         // VBox para armazenar os botões na lateral esquerda
         VBox leftPane = new VBox();
@@ -73,9 +66,7 @@ public class Principal extends Application {
 
         rightVBox.getChildren().add(totalLabel);
 
-        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            totalLabel.setMaxWidth(newWidth.doubleValue());
-        });
+        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> totalLabel.setMaxWidth(newWidth.doubleValue()));
 
         // Sombra branca
         DropShadow shadow = new DropShadow();
@@ -93,9 +84,9 @@ public class Principal extends Application {
 
         // Configurações para cada botão
         option1.setStyle("-fx-background-color: #0000001A ; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
-        option1.setOnAction(e -> handleOption(createMainGrid(), shadow, option1, option2, option3, "#245154"));
+        option1.setOnAction(e -> handleOption(createMainGrid(), shadow, option1, option2, option3));
         option2.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
-        option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3, "#8A7DB0"));
+        option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3));
 
         // Adiciona os botões na lateral esquerda
         leftPane.getChildren().addAll(option1, option2);
@@ -112,19 +103,20 @@ public class Principal extends Application {
         primaryStage.show();
     }
 
-    private void handleOption(GridPane mainGrid, DropShadow shadow, Button option1, Button option2, Button option3, String hashtag) {
-        if (this.mainGrid == null) {
-            this.mainGrid = createMainGrid();  // Só cria o GridPane uma vez
+    private void handleOption(GridPane mainGrid, DropShadow shadow, Button option1, Button option2, Button option3) {
+        GridPane mainGrid1 = mainGrid;
+        if (mainGrid1 == null) {
+            mainGrid1 = createMainGrid();  // Só cria o GridPane uma vez
         }
 
         rightVBox.getChildren().clear();
-        rightVBox.getChildren().addAll(this.mainGrid);
+        rightVBox.getChildren().addAll(mainGrid1);
 
         LinearGradient gradient = new LinearGradient(
                 1, 0, 0, 1,
                 true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#245255")), // Cor inicial
-                new Stop(1, Color.web("#173537"))  // Cor final
+                new Stop(0, Color.web("#3E718F")),
+                new Stop(1, Color.web("#244355"))
         );
 
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
@@ -136,7 +128,7 @@ public class Principal extends Application {
         option3.setEffect(null);
     }
 
-    private void handleOption2(Button addButton, DropShadow shadow, Button option1, Button option2, Button option3, String color) {
+    private void handleOption2(Button addButton, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
         VBox dividasAndButtonVBox = new VBox(10);
         dividasAndButtonVBox.setAlignment(Pos.CENTER);
@@ -150,8 +142,8 @@ public class Principal extends Application {
                 1, 0, 0, 1,
                 true,
                 CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#5C5476")),
-                new Stop(1, Color.web("#453F59"))
+                new Stop(0, Color.web("#4AAC90")),
+                new Stop(1, Color.web("#31725F"))
         );
 
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
@@ -233,7 +225,7 @@ public class Principal extends Application {
     private Background createBackground() {
         return new Background(new BackgroundFill(
                 new LinearGradient(
-                        0, 0, 1, 1, // Posição do gradiente (do canto superior esquerdo ao inferior direito)
+                        0, 0, 1, 1,
                         true, CycleMethod.NO_CYCLE,
                         new Stop(0, Color.web("#3D8E77")), // Cor inicial
                         new Stop(0.5, Color.web("#3D708E")), // Cor inicial
@@ -286,7 +278,14 @@ public class Principal extends Application {
         dividaRow.getChildren().addAll(tipoDividaLabel, nichoCombo, nmLabel, nomeDividaField, vlLabel, vlDivida, pclLabel, parcelasCombo, dateLabel, diaDividaCombo, mesDividaCombo, excluirButton);
         dividasFields.getChildren().add(dividaRow);
 
-        updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+        // Adiciona um listener ao campo de valor para atualizar o totalLabel em tempo real
+        vlDivida.textProperty().addListener((obs, oldText, newText) -> {
+            try {
+                updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+            } catch (NumberFormatException e) {
+                // Ignorar valores inválidos
+            }
+        });
     }
 
     private Button getButton(HBox dividaRow) {
@@ -295,7 +294,6 @@ public class Principal extends Application {
         excluirButton.setMinHeight(35);
         excluirButton.setOnAction(e -> {
             dividasFields.getChildren().remove(dividaRow);
-            // Ajustar a altura ao remover
             updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
         });
         return excluirButton;
@@ -331,6 +329,30 @@ public class Principal extends Application {
         totalLabel.setAlignment(Pos.CENTER);
         totalLabel.setMaxWidth(Double.MAX_VALUE);
         totalLabel.setBackground(null);
+    }
+
+    public void faturaEVencimentos() {
+        Integer[] vencimentos = card.getVencimento();
+        int vencimento = vencimentos[0];
+
+        // Valor do período de fechamento
+        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
+
+        for (int i = 0; i < 7; i++) {
+            // Calcula o valor do fechamento considerando o ciclo do mês
+            int diaFechamento = vencimento - (i + 1);
+            if (diaFechamento < 1) {
+                diaFechamento += 30; // Ajusta para o ciclo do mês
+            }
+            periodoFechamento[i] = diaFechamento;
+        }
+
+        // Exibe o período de fechamento para teste
+        System.out.print("Período de Fechamento: ");
+        for (int j : periodoFechamento) {
+            System.out.print(j + " ");
+        }
+        System.out.println();
     }
     public static void main(String[] args) {
         launch(args);
