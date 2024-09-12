@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,8 +17,7 @@ public class Principal extends Application {
     private Scene scene;
     private Label label;
     private VBox rightVBox;
-    private String limiteSaved = "";
-    private String vencimentoSaved = "";
+    private GridPane mainGrid;
 
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
@@ -53,6 +53,10 @@ public class Principal extends Application {
         totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
         rightVBox.getChildren().add(totalLabel);  // Adiciona o totalLabel ao rightVBox
 
+        // Ajuste a largura do totalLabel conforme a largura do rightVBox
+        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            totalLabel.setMaxWidth((Double) newWidth);
+        });
 
         // VBox para armazenar os botões na lateral esquerda
         VBox leftPane = new VBox();
@@ -60,6 +64,18 @@ public class Principal extends Application {
         leftPane.setBackground(createBackground()); // Aplica o gradiente
         leftPane.setAlignment(Pos.CENTER); // Centraliza os botões verticalmente
         leftPane.setSpacing(20); // Espaçamento entre os botões
+
+        // Inicializa o totalLabel
+        totalLabel = new Label("Total das Dívidas: 0.00");
+        totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        totalLabel.setAlignment(Pos.CENTER);
+
+        rightVBox.getChildren().add(totalLabel);
+
+        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            totalLabel.setMaxWidth(newWidth.doubleValue());
+        });
 
         // Sombra branca
         DropShadow shadow = new DropShadow();
@@ -77,7 +93,7 @@ public class Principal extends Application {
 
         // Configurações para cada botão
         option1.setStyle("-fx-background-color: #0000001A ; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
-        option1.setOnAction(e -> handleOption(createMainGrid(), createLimiteField(), createVencimentoCombo(), shadow, option1, option2, option3, "#245154"));
+        option1.setOnAction(e -> handleOption(createMainGrid(), shadow, option1, option2, option3, "#245154"));
         option2.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3, "#8A7DB0"));
 
@@ -96,18 +112,17 @@ public class Principal extends Application {
         primaryStage.show();
     }
 
-    private void handleOption(GridPane mainGrid, TextField limiteField, ComboBox<Integer> vencimentoCombo, DropShadow shadow, Button option1, Button option2, Button option3, String color) {
-        rightVBox.getChildren().clear();
-        rightVBox.getChildren().addAll(mainGrid);
+    private void handleOption(GridPane mainGrid, DropShadow shadow, Button option1, Button option2, Button option3, String hashtag) {
+        if (this.mainGrid == null) {
+            this.mainGrid = createMainGrid();  // Só cria o GridPane uma vez
+        }
 
-        // Restaura os valores salvos
-        limiteField.setText(limiteSaved);
-        vencimentoCombo.getSelectionModel().select(vencimentoSaved.isEmpty() ? 0 : Integer.parseInt(vencimentoSaved));
+        rightVBox.getChildren().clear();
+        rightVBox.getChildren().addAll(this.mainGrid);
 
         LinearGradient gradient = new LinearGradient(
                 1, 0, 0, 1,
-                true, // A flag `true` faz com que o gradiente seja cíclico
-                CycleMethod.NO_CYCLE, // O gradiente não se repete
+                true, CycleMethod.NO_CYCLE,
                 new Stop(0, Color.web("#245255")), // Cor inicial
                 new Stop(1, Color.web("#173537"))  // Cor final
         );
@@ -141,7 +156,8 @@ public class Principal extends Application {
 
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
         rightVBox.setBackground(new Background(backgroundFill));
-        rightVBox.getChildren().addAll(dividasAndButtonVBox);
+        rightVBox.getChildren().addAll(dividasAndButtonVBox, totalLabel);
+        Platform.runLater(() -> totalLabel.setMaxWidth(rightVBox.getWidth() - 40));
 
         // Adiciona o DropShadow aos botões
         option1.setEffect(null);
@@ -158,48 +174,44 @@ public class Principal extends Application {
 
         // Campo de texto para Limite:
         UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
-        TextField limiteField = createLimiteField();
+
+        // Incorporar a lógica do createLimiteField diretamente
+        TextField limiteField = new TextField();
+        UIConfig.configureTextField(limiteField);
         limiteField.setPromptText("0,00");
         GridPane.setHgrow(limiteField, Priority.NEVER);
 
-        // Campo de vencimento
-        UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
-        ComboBox<Integer> vencimentoCombo = createVencimentoCombo();
-        GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
-
-        // Adicione os elementos ao GridPane
-        mainGrid.add(limiteCustom, 0, 0);
-        mainGrid.add(limiteField, 1, 0);
-        mainGrid.add(vencimentoCustomLabel, 2, 0);
-        mainGrid.add(vencimentoCombo, 3, 0);
-
-        return mainGrid;
-    }
-
-    private TextField createLimiteField() {
-        TextField limiteField = new TextField();
-        UIConfig.configureTextField(limiteField);
         limiteField.textProperty().addListener((obs, oldText, newText) -> {
             try {
                 newText = newText.replace(",", ".");
                 card.setLimiteCartao(newText.isEmpty() ? 0 : (int) Float.parseFloat(newText));
                 updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+
             } catch (NumberFormatException e) {
                 card.setLimiteCartao(0);
                 updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
             }
         });
-        return limiteField;
-    }
 
-    private ComboBox<Integer> createVencimentoCombo() {
+        // Campo de vencimento
+        UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
+
+        // Incorporar a lógica do createVencimentoCombo diretamente
         ComboBox<Integer> vencimentoCombo = new ComboBox<>();
         UIConfig.configureComboBox(vencimentoCombo);
         vencimentoCombo.getItems().addAll(divida.getMesDivida());
         vencimentoCombo.getSelectionModel().selectFirst();
         vencimentoCombo.setMinWidth(100);
         vencimentoCombo.setMaxWidth(100);
-        return vencimentoCombo;
+        GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
+
+        // Adicionar os elementos ao GridPane
+        mainGrid.add(limiteCustom, 0, 0);
+        mainGrid.add(limiteField, 1, 0);
+        mainGrid.add(vencimentoCustomLabel, 2, 0);
+        mainGrid.add(vencimentoCombo, 3, 0);
+
+        return mainGrid;
     }
 
     private Button createAddButton() {
@@ -304,29 +316,22 @@ public class Principal extends Application {
         }
         return total;
     }
-
     private void updateTotalLabel(double total, boolean exceedLimit) {
         String message = String.format("Total das Dívidas: %.2f%s", total, exceedLimit ? " (Acima do limite!)" : "");
-        String backgroundColor = exceedLimit ? "#4F1609" : "#0C0812";
-        // Define o texto do Label
         totalLabel.setText(message);
-        totalLabel.setStyle("-fx-font-size: 20px;-fx-font-weight: bold; -fx-text-fill: white;");
 
-        totalLabel.setBackground(new Background(new BackgroundFill(
-                Color.web(backgroundColor),
-                new CornerRadii(5),
-                new Insets(-5)
-        )));
+        // Define o estilo do Label
+        if (exceedLimit) {
+            totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: yellow;");
+        } else {
+            totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+        }
 
-        // Define a borda do Label
-        totalLabel.setBorder(new Border(new BorderStroke(
-                Color.TRANSPARENT,
-                BorderStrokeStyle.SOLID,
-                new CornerRadii(5),
-                BorderWidths.DEFAULT
-        )));
+        // Centraliza o texto no Label
+        totalLabel.setAlignment(Pos.CENTER);
+        totalLabel.setMaxWidth(Double.MAX_VALUE);
+        totalLabel.setBackground(null);
     }
-
     public static void main(String[] args) {
         launch(args);
     }
