@@ -17,6 +17,8 @@ public class Principal extends Application {
     private Label totalLabel;
     private VBox rightVBox;
     private boolean labelsAdded;
+    private String limiteCartaoTexto;
+    private Integer vencimentoSelecionado;
 
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
@@ -100,7 +102,6 @@ public class Principal extends Application {
 
         // Configura a cena
         Scene scene = new Scene(root, 1080, 600);
-
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -170,7 +171,7 @@ public class Principal extends Application {
         UIConfig.CustomLabel limiteCustom = new UIConfig.CustomLabel("Limite do cartão: ");
 
         // Incorporar a lógica do createLimiteField diretamente
-        TextField limiteField = new TextField();
+        TextField limiteField = new TextField(limiteCartaoTexto);  // Define o valor salvo
         UIConfig.configureTextField(limiteField);
         limiteField.setPromptText("0,00");
         GridPane.setHgrow(limiteField, Priority.NEVER);
@@ -179,6 +180,7 @@ public class Principal extends Application {
             try {
                 newText = newText.replace(",", ".");
                 card.setLimiteCartao(newText.isEmpty() ? 0 : (int) Float.parseFloat(newText));
+                limiteCartaoTexto = limiteField.getText();  // Salva o valor atual
                 updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
 
             } catch (NumberFormatException e) {
@@ -187,7 +189,6 @@ public class Principal extends Application {
             }
         });
 
-        // Campo de vencimento
         UIConfig.CustomLabel vencimentoCustomLabel = new UIConfig.CustomLabel("Vencimento");
 
         // Incorporar a lógica do createVencimentoCombo diretamente
@@ -199,6 +200,15 @@ public class Principal extends Application {
         vencimentoCombo.setMaxWidth(100);
         GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
 
+        vencimentoCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
+            vencimentoSelecionado = newValue;
+        });
+
+        // Restaurar o valor selecionado
+        if (vencimentoSelecionado != null) {
+            vencimentoCombo.setValue(vencimentoSelecionado);
+        }
+
         // Adicionar os elementos ao GridPane
         mainGrid.add(limiteCustom, 0, 0);
         mainGrid.add(limiteField, 1, 0);
@@ -207,7 +217,6 @@ public class Principal extends Application {
 
         return mainGrid;
     }
-
     private Button createAddButton() {
         Button addButton = new Button("Adicionar Dívida");
         addButton.setOnAction(e -> addDividaFields());
