@@ -1,5 +1,3 @@
-import java.util.Collection;
-
 public abstract class Divida {
     // Atributos da dívida
     private String nomeDivida;
