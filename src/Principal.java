@@ -373,11 +373,30 @@ public class Principal extends Application {
         Integer[] vencimentos = card.getVencimento();
         int vencimento = vencimentos[0];
 
-        // Valor do período de fechamento
+        // Obtém o valor total da dívida e o número de parcelas selecionadas
+        double valorTotal = 0.0;
+        int parcelasSelecionadas = 1; // Definido por padrão; você pode obter isso a partir do UI
+
+        for (Node node : dividasFields.getChildren()) {
+            if (node instanceof HBox) {
+                HBox hbox = (HBox) node;
+                TextField valorField = (TextField) hbox.getChildren().get(2); // Supondo que o valor está na terceira posição
+                ComboBox<Integer> parcelasCombo = (ComboBox<Integer>) hbox.getChildren().get(3); // Supondo que as parcelas estão na quarta posição
+
+                try {
+                    valorTotal += Double.parseDouble(valorField.getText().replace(",", "."));
+                    parcelasSelecionadas = parcelasCombo.getValue(); // Obtém o número de parcelas selecionado
+                } catch (NumberFormatException e) {
+                    // Ignora erros de formatação
+                }
+            }
+        }
+
+        // Calcula o valor de cada parcela
+        double valorParcela = valorTotal / parcelasSelecionadas;
         int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
 
         for (int i = 0; i < 7; i++) {
-            // Calcula o valor do fechamento considerando o ciclo do mês
             int diaFechamento = vencimento - (i + 1);
             if (diaFechamento < 1) {
                 diaFechamento += 30; // Ajusta para o ciclo do mês
@@ -385,13 +404,16 @@ public class Principal extends Application {
             periodoFechamento[i] = diaFechamento;
         }
 
-        // Exibe o período de fechamento para teste
         System.out.print("Período de Fechamento: ");
         for (int j : periodoFechamento) {
             System.out.print(j + " ");
         }
         System.out.println();
+        System.out.println("Valor Total: " + valorTotal);
+        System.out.println("Parcelas Selecionadas: " + parcelasSelecionadas);
+        System.out.println("Valor por Parcela: " + valorParcela);
     }
+
     public static void main(String[] args) {
         launch(args);
     }
