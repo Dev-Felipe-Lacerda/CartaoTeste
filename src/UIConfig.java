@@ -17,7 +17,7 @@ public class UIConfig {
         comboBox.setPrefWidth(115); // Define um tamanho preferido
         comboBox.setMaxWidth(115); // Define a largura máxima
         comboBox.setMinWidth(115); // Define a largura mínima
-        comboBox.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         // Configura o estilo dos itens dentro do ComboBox
         comboBox.setCellFactory(new Callback<>() {
@@ -32,7 +32,7 @@ public class UIConfig {
                         } else {
                             setText(item.toString());
                             setTextFill(Color.WHITE); // Define a cor do texto como branca
-                            setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
                         }
                     }
                 };
@@ -50,7 +50,7 @@ public class UIConfig {
                 } else {
                     setText(item.toString());
                     setTextFill(Color.WHITE); // Define a cor do texto como branca
-                    setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                    setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
                 }
             }
         });
@@ -58,9 +58,9 @@ public class UIConfig {
         // Adiciona o contorno difuso branco quando focado
         comboBox.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                comboBox.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
+                comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
             } else {
-                comboBox.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+                comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
             }
         });
     }
@@ -68,7 +68,7 @@ public class UIConfig {
         comboString.setPrefWidth(175); // Define um tamanho preferido
         comboString.setMaxWidth(175); // Define a largura máxima
         comboString.setMinWidth(175); // Define a largura mínima
-        comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         // Configura o estilo dos itens dentro do ComboBox
         comboString.setCellFactory(new Callback<>() {
@@ -83,7 +83,7 @@ public class UIConfig {
                         } else {
                             setText(nic.toString());
                             setTextFill(Color.WHITE); // Define a cor do texto como branca
-                            setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
                         }
                     }
                 };
@@ -101,7 +101,7 @@ public class UIConfig {
                 } else {
                     setText(nic.toString());
                     setTextFill(Color.WHITE); // Define a cor do texto como branca
-                    setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold;");
+                    setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
                 }
             }
         });
@@ -109,9 +109,9 @@ public class UIConfig {
         // Adiciona o contorno difuso branco quando focado
         comboString.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
+                comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
             } else {
-                comboString.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+                comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
             }
         });
     }
@@ -121,14 +121,14 @@ public class UIConfig {
         textField.setPrefWidth(85); // Define um tamanho preferido
         textField.setMaxWidth(85); // Define a largura máxima
         textField.setMinWidth(85); // Define a largura mínima
-        textField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+        textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
 
         // Adiciona o contorno difuso branco quando focado
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                textField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);");
+                textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
             } else {
-                textField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+                textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
             }
         });
     }

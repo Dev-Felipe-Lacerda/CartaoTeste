@@ -20,8 +20,8 @@ public class Principal extends Application {
     private String limiteCartaoTexto;
     private Integer vencimentoSelecionado;
 
-    private static final String BUTTON_STYLE = "-fx-background-color: #0C0812; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
-    private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 5, 0.01, 0, 0);";
+    private static final String BUTTON_STYLE = "-fx-background-color: #0C0812F2; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
+    private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 1, 0.1, 0, 0);";
 
     @Override
     public void start(Stage primaryStage) {
@@ -33,9 +33,9 @@ public class Principal extends Application {
         // Pane principal da lateral direita (resto da janela)
         rightVBox = new VBox(10);
         rightVBox.setAlignment(Pos.CENTER);
-        rightVBox.setPrefSize(880, 600);
+        rightVBox.setPrefSize(900, 600);
         rightVBox.setStyle("-fx-background-color: white;");
-        rightVBox.setPadding(new Insets(20));
+        rightVBox.setPadding(Insets.EMPTY);
 
         // Inicializa dividasFields
         dividasFields = new VBox(10);
@@ -57,10 +57,10 @@ public class Principal extends Application {
 
         // VBox para armazenar os botões na lateral esquerda
         VBox leftPane = new VBox();
-        leftPane.setPrefSize(200, 600);
-        leftPane.setBackground(createBackground()); // Aplica o gradiente
-        leftPane.setAlignment(Pos.CENTER); // Centraliza os botões verticalmente
-        leftPane.setSpacing(20); // Espaçamento entre os botões
+        leftPane.setPrefSize(270, 600);
+        leftPane.setBackground(createBackground());
+        leftPane.setAlignment(Pos.CENTER);
+        leftPane.setSpacing(20);
 
         // Inicializa o totalLabel
         totalLabel = new Label("Total das Dívidas: 0.00");
@@ -80,20 +80,24 @@ public class Principal extends Application {
 
         // Declaração dos botões
         Button option1 = new Button("Cartão");
-        option1.setMinWidth(200);
         Button option2 = new Button("Dívidas");
-        option2.setMinWidth(200);
         Button option3 = new Button("Fatura e Vencimentos");
-        option3.setMinWidth(200);
 
         // Configurações para cada botão
         option1.setStyle("-fx-background-color: #0000001A ; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option1.setOnAction(e -> handleOption(createMainGrid(), shadow, option1, option2, option3));
         option2.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3));
+        option3.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+        option3.setOnAction(e -> handleOption3(faturaEVencimentos(), shadow, option1, option2, option3));
 
         // Adiciona os botões na lateral esquerda
-        leftPane.getChildren().addAll(option1, option2);
+        leftPane.getChildren().addAll(option1, option2, option3);
+        leftPane.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            option1.setMinWidth(newWidth.doubleValue());
+            option2.setMinWidth(newWidth.doubleValue());
+            option3.setMinWidth(newWidth.doubleValue());
+        });
 
         // Layout principal
         BorderPane root = new BorderPane();
@@ -101,7 +105,7 @@ public class Principal extends Application {
         root.setCenter(rightVBox); // Define o restante da janela
 
         // Configura a cena
-        Scene scene = new Scene(root, 1080, 600);
+        Scene scene = new Scene(root, 1144, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -160,6 +164,31 @@ public class Principal extends Application {
         option3.setEffect(null);
     }
 
+    private void handleOption3(Button faturaButton, DropShadow shadow, Button option1, Button option2, Button option3) {
+        rightVBox.getChildren().clear();
+        HBox faturasHBox = new HBox();
+        faturasHBox.setAlignment(Pos.CENTER);
+        HBox.setHgrow(faturaButton, Priority.ALWAYS);
+        faturasHBox.getChildren().add(faturaButton);
+
+        LinearGradient gradient = new LinearGradient(
+                1, 0, 0, 1,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#E0A24C")),
+                new Stop(1, Color.web("#89632F"))
+        );
+
+        BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
+        rightVBox.setBackground(new Background(backgroundFill));
+        rightVBox.getChildren().add(faturasHBox);
+
+        option1.setEffect(null);
+        option2.setEffect(null);
+        option3.setEffect(shadow);
+        faturaButton.maxWidthProperty().bind(rightVBox.widthProperty().subtract(0));
+    }
+
     private GridPane createMainGrid() {
         GridPane mainGrid = new GridPane();
         mainGrid.setPadding(new Insets(10));
@@ -201,10 +230,8 @@ public class Principal extends Application {
         GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
 
         vencimentoCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
-            vencimentoSelecionado = newValue;
+            vencimentoSelecionado = newValue; // Atualiza a variável de vencimento selecionado
         });
-
-        // Restaurar o valor selecionado
         if (vencimentoSelecionado != null) {
             vencimentoCombo.setValue(vencimentoSelecionado);
         }
@@ -217,6 +244,7 @@ public class Principal extends Application {
 
         return mainGrid;
     }
+
     private Button createAddButton() {
         Button addButton = new Button("Adicionar Dívida");
         addButton.setOnAction(e -> addDividaFields());
@@ -284,7 +312,7 @@ public class Principal extends Application {
         nomeDividaField.setMaxWidth(140);
         nomeDividaField.setMinWidth(140);
         nomeDividaField.setPromptText("Ex: Roupas");
-        nomeDividaField.setStyle("-fx-background-color: #0C0812; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+        nomeDividaField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
 
         TextField vlDivida = new TextField();
         UIConfig.configureTextField(vlDivida);
@@ -340,8 +368,7 @@ public class Principal extends Application {
     private double calculateTotalDividas() {
         double total = 0.0;
         for (Node node : dividasFields.getChildren()) {
-            if (node instanceof HBox) {
-                HBox hbox = (HBox) node;
+            if (node instanceof HBox hbox) {
                 TextField valorField = (TextField) hbox.getChildren().get(2); // Supondo que o valor está na terceira posição
                 try {
                     total += Double.parseDouble(valorField.getText().replace(",", "."));
@@ -369,25 +396,22 @@ public class Principal extends Application {
         totalLabel.setBackground(null);
     }
 
-    public void faturaEVencimentos() {
-        Integer[] vencimentos = card.getVencimento();
-        int vencimento = vencimentos[0];
+    public Button faturaEVencimentos() {
+        int vencimento = vencimentoSelecionado != null ? vencimentoSelecionado : 1;
 
         // Obtém o valor total da dívida e o número de parcelas selecionadas
         double valorTotal = 0.0;
         int parcelasSelecionadas = 1; // Definido por padrão; você pode obter isso a partir do UI
 
         for (Node node : dividasFields.getChildren()) {
-            if (node instanceof HBox) {
-                HBox hbox = (HBox) node;
-                TextField valorField = (TextField) hbox.getChildren().get(2); // Supondo que o valor está na terceira posição
-                ComboBox<Integer> parcelasCombo = (ComboBox<Integer>) hbox.getChildren().get(3); // Supondo que as parcelas estão na quarta posição
+            if (node instanceof HBox hbox) {
+                TextField valorField = (TextField) hbox.getChildren().get(2);
+                ComboBox<Integer> parcelasCombo = (ComboBox<Integer>) hbox.getChildren().get(3);
 
                 try {
                     valorTotal += Double.parseDouble(valorField.getText().replace(",", "."));
-                    parcelasSelecionadas = parcelasCombo.getValue(); // Obtém o número de parcelas selecionado
-                } catch (NumberFormatException e) {
-                    // Ignora erros de formatação
+                    parcelasSelecionadas = parcelasCombo.getValue();
+                } catch (NumberFormatException ignored) {
                 }
             }
         }
@@ -408,10 +432,52 @@ public class Principal extends Application {
         for (int j : periodoFechamento) {
             System.out.print(j + " ");
         }
+
+        Button faturaButton = getButton();
+
         System.out.println();
         System.out.println("Valor Total: " + valorTotal);
         System.out.println("Parcelas Selecionadas: " + parcelasSelecionadas);
         System.out.println("Valor por Parcela: " + valorParcela);
+        return faturaButton;
+    }
+
+    private static Button getButton() {
+        Button faturaButton = new Button("Fatura do mês");
+        faturaButton.setStyle(  "-fx-background-color: #E0A24C4D; " +
+                "-fx-font-size: 26px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-text-fill: white; " +
+                "-fx-border-color: transparent; " +
+                "-fx-border-radius: 4px; " +
+                "-fx-padding: 8 16; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
+        );
+
+        faturaButton.setOnMouseEntered(event -> faturaButton.setStyle(
+                "-fx-background-color: #89632F4D; " +
+                        "-fx-font-size: 26px; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-border-color: transparent; " +
+                        "-fx-border-radius: 4px; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
+        ));
+
+        // Reverter o estilo quando o mouse sair do botão
+        faturaButton.setOnMouseExited(event -> faturaButton.setStyle(
+                "-fx-background-color: #E0A24C4D; " +
+                        "-fx-font-size: 26px; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-border-color: transparent; " +
+                        "-fx-border-radius: 4px; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
+        ));
+
+        return faturaButton;
     }
 
     public static void main(String[] args) {
