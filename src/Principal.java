@@ -16,6 +16,8 @@ public class Principal extends Application {
     private VBox dividasFields;
     private Label totalLabel;
     private VBox rightVBox;
+
+    private boolean isFirstTime = true;
     private boolean labelsAdded;
     private String limiteCartaoTexto;
     private Integer vencimentoSelecionado;
@@ -158,10 +160,15 @@ public class Principal extends Application {
         rightVBox.setBackground(new Background(backgroundFill));
         Platform.runLater(() -> totalLabel.setMaxWidth(rightVBox.getWidth() - 40));
 
-        // Adiciona o DropShadow aos botões
         option1.setEffect(null);
         option2.setEffect(shadow);
         option3.setEffect(null);
+
+        //Iniciando no primeiro chamado
+        if (isFirstTime) {
+            addDividaFields();
+            isFirstTime = false;
+        }
     }
 
     private void handleOption3(Button faturaButton, DropShadow shadow, Button option1, Button option2, Button option3) {
