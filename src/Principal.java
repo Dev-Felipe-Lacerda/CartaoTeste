@@ -1,5 +1,4 @@
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,6 +20,7 @@ public class Principal extends Application {
     private boolean labelsAdded;
     private String limiteCartaoTexto;
     private Integer vencimentoSelecionado;
+    private int rowcount=0;
 
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812F2; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 1, 0.1, 0, 0);";
@@ -296,6 +296,7 @@ public class Principal extends Application {
     }
 
     private void addDividaFields() {
+        rowcount++;
         if (!labelsAdded) {
             UIConfig.CustomLabel tipoDividaLabel = new UIConfig.CustomLabel("Tipo");
             UIConfig.CustomLabel nmLabel = new UIConfig.CustomLabel("Nome da dívida");
@@ -303,7 +304,6 @@ public class Principal extends Application {
             UIConfig.CustomLabel pclLabel = new UIConfig.CustomLabel("Parcelas");
             UIConfig.CustomLabel dateLabel = new UIConfig.CustomLabel("Data");
             Label empty = new Label("");
-
 
             GridPane labelsGrid = new GridPane();
             labelsGrid.setAlignment(Pos.CENTER);
@@ -317,7 +317,6 @@ public class Principal extends Application {
             labelsGrid.add(dateLabel, 60, 0);
             labelsGrid.add(empty,80,0);
             labelsGrid.setHgap(5);
-
             labelsAdded = true;
         }
 
@@ -346,33 +345,32 @@ public class Principal extends Application {
 
         ComboBox<Integer> diaDividaCombo = new ComboBox<>();
         UIConfig.configureComboBox(diaDividaCombo);
-        diaDividaCombo.setMaxWidth(80); // Define a largura máxima
-        diaDividaCombo.setMinWidth(80); // Define a largura mínima
+        diaDividaCombo.setMaxWidth(80);
+        diaDividaCombo.setMinWidth(80);
         diaDividaCombo.getItems().addAll(divida.getDiaDivida());
         diaDividaCombo.getSelectionModel().selectFirst();
 
         ComboBox<Integer> mesDividaCombo = new ComboBox<>();
         UIConfig.configureComboBox(mesDividaCombo);
-        mesDividaCombo.setMaxWidth(80); // Define a largura máxima
-        mesDividaCombo.setMinWidth(80); // Define a largura mínima
+        mesDividaCombo.setMaxWidth(80);
+        mesDividaCombo.setMinWidth(80);
         mesDividaCombo.getItems().addAll(divida.getMesDivida());
         mesDividaCombo.getSelectionModel().selectFirst();
 
-        // Botão Excluir
         Button excluirButton = getButton(dividaRow);
 
         dividaRow.getChildren().addAll(nichoCombo, nomeDividaField, vlDivida, parcelasCombo, diaDividaCombo, mesDividaCombo, excluirButton);
         dividasFields.getChildren().add(dividaRow);
         vlDivida.textProperty().addListener((obs, oldValue, newValue) -> updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao()));
-
-    // Adiciona um listener ao campo de valor para atualizar o totalLabel em tempo real
-        vlDivida.textProperty().addListener((obs, oldText, newText) -> {
-            try {
-                updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
-            } catch (NumberFormatException e) {
-                // Ignorar valores inválidos
+        if (rowcount == 0 && labelsAdded) {
+            for (Node node : dividasFields.getChildren()) {
+                if (node instanceof GridPane) {
+                    dividasFields.getChildren().remove(node);
+                    labelsAdded = false;
+                    break;
+                }
             }
-        });
+        }
     }
 
     private Button getButton(HBox dividaRow) {
@@ -380,8 +378,19 @@ public class Principal extends Application {
         excluirButton.setStyle("-fx-background-color:#921710 ; -fx-text-fill: white; -fx-font-weight: bold;");
         excluirButton.setMinHeight(35);
         excluirButton.setOnAction(e -> {
+            rowcount--;
             dividasFields.getChildren().remove(dividaRow);
             updateTotalLabel(calculateTotalDividas(), calculateTotalDividas() > card.getLimiteCartao());
+            if (rowcount == 0 && labelsAdded) {
+                // Remove o GridPane dos labels
+                for (Node node : dividasFields.getChildren()) {
+                    if (node instanceof GridPane) {
+                        dividasFields.getChildren().remove(node);
+                        labelsAdded = false;
+                        break;
+                    }
+                }
+            }
         });
         return excluirButton;
     }
