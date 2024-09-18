@@ -146,8 +146,18 @@ public class Principal extends Application {
         VBox totalLabelVBox = new VBox();
         totalLabelVBox.setAlignment(Pos.BOTTOM_CENTER);
         totalLabelVBox.getChildren().add(totalLabel);
-        rightVBox.getChildren().addAll(dividasAndButtonVBox, totalLabelVBox);
 
+        VBox contentVBox = new VBox(10);
+        contentVBox.getChildren().addAll(dividasAndButtonVBox, totalLabelVBox);
+
+        // ScrollPane transparente
+        ScrollPane scrollPane = new ScrollPane(contentVBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        rightVBox.getChildren().add(scrollPane);
+
+        // Aplicando o background
         LinearGradient gradient = new LinearGradient(
                 1, 0, 0, 1,
                 true,
@@ -155,16 +165,13 @@ public class Principal extends Application {
                 new Stop(0, Color.web("#4AAC90")),
                 new Stop(1, Color.web("#31725F"))
         );
-
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
         rightVBox.setBackground(new Background(backgroundFill));
-        Platform.runLater(() -> totalLabel.setMaxWidth(rightVBox.getWidth() - 40));
 
         option1.setEffect(null);
         option2.setEffect(shadow);
         option3.setEffect(null);
 
-        //Iniciando no primeiro chamado
         if (isFirstTime) {
             addDividaFields();
             isFirstTime = false;
@@ -178,6 +185,15 @@ public class Principal extends Application {
         HBox.setHgrow(faturaButton, Priority.ALWAYS);
         faturasHBox.getChildren().add(faturaButton);
 
+        VBox contentVBox = new VBox(10);
+        contentVBox.getChildren().add(faturasHBox);
+
+        ScrollPane scrollPane = new ScrollPane(contentVBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        rightVBox.getChildren().add(scrollPane);
+
         LinearGradient gradient = new LinearGradient(
                 1, 0, 0, 1,
                 true,
@@ -185,10 +201,8 @@ public class Principal extends Application {
                 new Stop(0, Color.web("#E0A24C")),
                 new Stop(1, Color.web("#89632F"))
         );
-
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
         rightVBox.setBackground(new Background(backgroundFill));
-        rightVBox.getChildren().add(faturasHBox);
 
         option1.setEffect(null);
         option2.setEffect(null);
@@ -451,6 +465,8 @@ public class Principal extends Application {
 
     private static Button getButton() {
         Button faturaButton = new Button("Fatura do mês");
+        boolean[] isExpanded = {false};
+
         faturaButton.setStyle(  "-fx-background-color: #E0A24C4D; " +
                 "-fx-font-size: 26px; " +
                 "-fx-font-weight: bold; " +
@@ -472,7 +488,6 @@ public class Principal extends Application {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
         ));
 
-        // Reverter o estilo quando o mouse sair do botão
         faturaButton.setOnMouseExited(event -> faturaButton.setStyle(
                 "-fx-background-color: #E0A24C4D; " +
                         "-fx-font-size: 26px; " +
@@ -483,6 +498,17 @@ public class Principal extends Application {
                         "-fx-padding: 8 16; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
         ));
+
+        faturaButton.setOnAction(event -> {
+            if (!isExpanded[0]) {
+                faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
+                faturaButton.setText("Expandido");
+            } else {
+                faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
+                faturaButton.setText("Fatura do mês");
+            }
+            isExpanded[0] = !isExpanded[0];
+        });
 
         return faturaButton;
     }
