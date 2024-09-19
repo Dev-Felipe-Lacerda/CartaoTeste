@@ -36,7 +36,7 @@ public class Principal extends Application {
         rightVBox = new VBox(10);
         rightVBox.setAlignment(Pos.CENTER);
         rightVBox.setPrefSize(900, 600);
-        rightVBox.setStyle("-fx-background-color: white;");
+        rightVBox.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #8A2BE2, #FF69B4);");
         rightVBox.setPadding(Insets.EMPTY);
 
         // Inicializa dividasFields
@@ -45,14 +45,9 @@ public class Principal extends Application {
         dividasFields.setAlignment(Pos.CENTER);
 
         // Label que será atualizada com base na opção selecionada
-        Label label = new Label("Selecione uma opção");
-        label.setStyle("-fx-font-size: 18px; -fx-text-fill: black;");
+        Label label = new Label("Informe seus dados da fatura!");
+        label.setStyle("-fx-font-size: 38px;-fx-font-weight: bold; -fx-text-fill: white;");
         rightVBox.getChildren().add(label);
-
-        // Inicializa o totalLabel apenas uma vez
-        totalLabel = new Label("Total das Dívidas: 0.00");
-        totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
-        rightVBox.getChildren().add(totalLabel);
 
         // Ajuste a largura do totalLabel conforme a largura do rightVBox
         rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> totalLabel.setMaxWidth((Double) newWidth));
@@ -67,12 +62,9 @@ public class Principal extends Application {
         // Inicializa o totalLabel
         totalLabel = new Label("Total das Dívidas: 0.00");
         totalLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
-
         totalLabel.setAlignment(Pos.CENTER);
-
-        rightVBox.getChildren().add(totalLabel);
-
-        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> totalLabel.setMaxWidth(newWidth.doubleValue()));
+        totalLabel.setVisible(false);
+        rightVBox.widthProperty().addListener((obs, oldWidth, newWidth) -> totalLabel.setMaxWidth((Double) newWidth));
 
         // Sombra branca
         DropShadow shadow = new DropShadow();
@@ -176,6 +168,7 @@ public class Principal extends Application {
             addDividaFields();
             isFirstTime = false;
         }
+        totalLabel.setVisible(true);
     }
 
     private void handleOption3(Button faturaButton, DropShadow shadow, Button option1, Button option2, Button option3) {
