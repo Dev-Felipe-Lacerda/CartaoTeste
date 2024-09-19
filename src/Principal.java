@@ -412,12 +412,12 @@ public class Principal extends Application {
 
     private void updateTotalLabel(double total, boolean excedeLimite) {
         String mensagem = String.format("Total das Dívidas: %.2f", total);
+        totalLabel.setTextFill(Color.WHITE);
 
         if (excedeLimite) {
-            mensagem += " (Acima do limite!)";  // Adiciona a mensagem de aviso
-            totalLabel.setTextFill(Color.YELLOW);   // Alerta se o limite for excedido
-        } else {
-            totalLabel.setTextFill(Color.WHITE);
+            double diferencaDouble = total - card.getLimiteCartao();
+            mensagem += String.format(" | Limite excedido em: %.2f", diferencaDouble);
+            totalLabel.setTextFill(Color.YELLOW);
         }
 
         totalLabel.setText(mensagem);
@@ -509,12 +509,13 @@ public class Principal extends Application {
         ));
 
         faturaButton.setOnAction(event -> {
+            if (isExpanded[0]) {
+                faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
+                faturaButton.setText("Fatura do mês");
+            }
             if (!isExpanded[0]) {
                 faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
                 faturaButton.setText("Expandido");
-            } else {
-                faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
-                faturaButton.setText("Fatura do mês");
             }
             isExpanded[0] = !isExpanded[0];
         });
