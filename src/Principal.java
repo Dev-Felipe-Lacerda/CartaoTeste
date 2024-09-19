@@ -8,6 +8,8 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Principal extends Application {
     private Card card;
@@ -237,7 +239,7 @@ public class Principal extends Application {
         // Incorporar a lógica do createVencimentoCombo diretamente
         ComboBox<Integer> vencimentoCombo = new ComboBox<>();
         UIConfig.configureComboBox(vencimentoCombo);
-        vencimentoCombo.getItems().addAll(divida.getMesDivida());
+        vencimentoCombo.getItems().addAll(divida.getDiaDivida());
         vencimentoCombo.getSelectionModel().selectFirst();
         vencimentoCombo.setMinWidth(100);
         vencimentoCombo.setMaxWidth(100);
@@ -422,25 +424,42 @@ public class Principal extends Application {
     public Button faturaEVencimentos() {
         int vencimento = vencimentoSelecionado != null ? vencimentoSelecionado : 1;
 
-        // Obtém o valor total da dívida e o número de parcelas selecionadas
+        // Armazena os meses cobertos por cada dívida
+        Set<Integer> mesesCobertos = new TreeSet<>();
         double valorTotal = 0.0;
-        int parcelasSelecionadas = 1; // Definido por padrão; você pode obter isso a partir do UI
 
         for (Node node : dividasFields.getChildren()) {
             if (node instanceof HBox hbox) {
+                ComboBox<String> nichoCombo = (ComboBox<String>) hbox.getChildren().get(0);
+                TextField nomeField = (TextField) hbox.getChildren().get(1);
                 TextField valorField = (TextField) hbox.getChildren().get(2);
                 ComboBox<Integer> parcelasCombo = (ComboBox<Integer>) hbox.getChildren().get(3);
+                ComboBox<Integer> mesDividaCombo = (ComboBox<Integer>) hbox.getChildren().get(5);
 
                 try {
-                    valorTotal += Double.parseDouble(valorField.getText().replace(",", "."));
-                    parcelasSelecionadas = parcelasCombo.getValue();
+                    String tipoDivida = nichoCombo.getValue();
+                    String nomeDivida = nomeField.getText();
+                    double valor = Double.parseDouble(valorField.getText().replace(",", "."));
+                    valorTotal += valor;
+
+                    int parcelas = parcelasCombo.getValue();
+                    int mesInicial = mesDividaCombo.getValue();
+
+                    // Adiciona os meses cobridos pela dívida
+                    for (int i = 0; i < parcelas; i++) {
+                        int mesAtual = (mesInicial + i - 1) % 12 + 1;
+                        mesesCobertos.add(mesAtual);
+                    }
+
+                    // Imprime nome e tipo da dívida
+                    System.out.println("Dívida: " + nomeDivida + ", Tipo: " + tipoDivida);
                 } catch (NumberFormatException ignored) {
                 }
             }
         }
 
-        // Calcula o valor de cada parcela
-        double valorParcela = valorTotal / parcelasSelecionadas;
+        int totalMeses = mesesCobertos.size();
+        double valorParcela = valorTotal / totalMeses;
         int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
 
         for (int i = 0; i < 7; i++) {
@@ -460,7 +479,8 @@ public class Principal extends Application {
 
         System.out.println();
         System.out.println("Valor Total: " + valorTotal);
-        System.out.println("Parcelas Selecionadas: " + parcelasSelecionadas);
+        System.out.println("Meses Distintos: " + mesesCobertos.size());
+        System.out.println("Total de Meses: " + totalMeses);
         System.out.println("Valor por Parcela: " + valorParcela);
         return faturaButton;
     }
