@@ -8,8 +8,8 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
-import java.util.Set;
-import java.util.TreeSet;
+
+import java.util.*;
 
 public class Principal extends Application {
     private Card card;
@@ -424,9 +424,10 @@ public class Principal extends Application {
     public Button faturaEVencimentos() {
         int vencimento = vencimentoSelecionado != null ? vencimentoSelecionado : 1;
 
-        // Armazena os meses cobertos por cada dívida
-        Set<Integer> mesesCobertos = new TreeSet<>();
+        // Armazena os meses e as informações de cada dívida
+        Map<Integer, List<String>> mesesDividas = new TreeMap<>();
         double valorTotal = 0.0;
+        List<Integer> periodoFechamentoList = new ArrayList<>();
 
         for (Node node : dividasFields.getChildren()) {
             if (node instanceof HBox hbox) {
@@ -434,34 +435,58 @@ public class Principal extends Application {
                 TextField nomeField = (TextField) hbox.getChildren().get(1);
                 TextField valorField = (TextField) hbox.getChildren().get(2);
                 ComboBox<Integer> parcelasCombo = (ComboBox<Integer>) hbox.getChildren().get(3);
+                ComboBox<Integer> diaDividaCombo = (ComboBox<Integer>) hbox.getChildren().get(4);
                 ComboBox<Integer> mesDividaCombo = (ComboBox<Integer>) hbox.getChildren().get(5);
 
                 try {
                     String tipoDivida = nichoCombo.getValue();
                     String nomeDivida = nomeField.getText();
                     double valor = Double.parseDouble(valorField.getText().replace(",", "."));
-                    valorTotal += valor;
-
                     int parcelas = parcelasCombo.getValue();
-                    int mesInicial = mesDividaCombo.getValue();
+                    int diaDivida = diaDividaCombo.getValue();
+                    int mesDivida = mesDividaCombo.getValue();
 
-                    // Adiciona os meses cobridos pela dívida
+                    double valorParcela = valor / parcelas;
+
+                    // Adiciona os meses cobertos pela dívida e formata a string para cada mês
                     for (int i = 0; i < parcelas; i++) {
-                        int mesAtual = (mesInicial + i - 1) % 12 + 1;
-                        mesesCobertos.add(mesAtual);
+                        int mesAtual = (mesDivida + i - 1) % 12 + 1;
+                        int parcelaAtual = i + 1;
+
+                        String infoDivida = String.format(
+                                "Dívida: %s, Tipo: %s, Valor: %.2f, Parcelas: %d, Parcela Atual: %d/%d, Data da Compra: %d/%d",
+                                nomeDivida, tipoDivida, valorParcela, parcelas, parcelaAtual, parcelas, diaDivida, mesDivida
+                        );
+
+                        mesesDividas.computeIfAbsent(mesAtual, k -> new ArrayList<>()).add(infoDivida);
                     }
 
-                    // Imprime nome e tipo da dívida
-                    System.out.println("Dívida: " + nomeDivida + ", Tipo: " + tipoDivida);
+                    valorTotal += valor;
+                    periodoFechamentoList.add(vencimento);
+
                 } catch (NumberFormatException ignored) {
                 }
             }
         }
 
-        int totalMeses = mesesCobertos.size();
-        double valorParcela = valorTotal / totalMeses;
-        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
+        // Exibe os detalhes de cada dívida
+        System.out.println("Faturas por Mês:");
+        for (Map.Entry<Integer, List<String>> entry : mesesDividas.entrySet()) {
+            int mes = entry.getKey();
+            List<String> dividas = entry.getValue();
+            double totalFaturaMes = dividas.stream()
+                    .mapToDouble(d -> Double.parseDouble(d.split(", Valor: ")[1].split(",")[0]))
+                    .sum();
 
+            System.out.println("Mês " + mes + ":");
+            for (String divida : dividas) {
+                System.out.println("  " + divida);
+            }
+            System.out.println("  Valor Total da Fatura: " + totalFaturaMes);
+        }
+
+        // Verifica o período de fechamento
+        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
         for (int i = 0; i < 7; i++) {
             int diaFechamento = vencimento - (i + 1);
             if (diaFechamento < 1) {
@@ -470,22 +495,34 @@ public class Principal extends Application {
             periodoFechamento[i] = diaFechamento;
         }
 
+        // Encontrar o menor e maior valor do período de fechamento
+        int menorDiaFechamento = periodoFechamento[0];
+        int maiorDiaFechamento = periodoFechamento[0];
+        for (int i = 1; i < periodoFechamento.length; i++) {
+            if (periodoFechamento[i] < menorDiaFechamento) {
+                menorDiaFechamento = periodoFechamento[i];
+            }
+            if (periodoFechamento[i] > maiorDiaFechamento) {
+                maiorDiaFechamento = periodoFechamento[i];
+            }
+        }
+
         System.out.print("Período de Fechamento: ");
         for (int j : periodoFechamento) {
             System.out.print(j + " ");
         }
 
-        Button faturaButton = getButton();
-
         System.out.println();
+        System.out.println("Período de Pagamento: do dia " + menorDiaFechamento + " até " + maiorDiaFechamento);
         System.out.println("Valor Total: " + valorTotal);
-        System.out.println("Meses Distintos: " + mesesCobertos.size());
-        System.out.println("Total de Meses: " + totalMeses);
-        System.out.println("Valor por Parcela: " + valorParcela);
-        return faturaButton;
+        System.out.println("Meses Distintos: " + mesesDividas.size());
+        System.out.println("Total de Meses: " + mesesDividas.size());
+        System.out.println("Valor por Parcela: " + (valorTotal / mesesDividas.size()));
+
+        return getButton();
     }
 
-    private static Button getButton() {
+    private Button getButton() {
         Button faturaButton = new Button("Fatura do mês");
         boolean[] isExpanded = {false};
 
