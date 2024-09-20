@@ -491,24 +491,17 @@ public class Principal extends Application {
         // Verifica o período de fechamento
         int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
         for (int i = 0; i < 7; i++) {
-            int diaFechamento = vencimento - (i + 1);
+            int diaFechamento = vencimento - i; //Para calcular dias anteriores ao vencimento
             if (diaFechamento < 1) {
-                diaFechamento += 30; // Ajusta para o ciclo do mês
+                // Ajusta se o dia ficar menor que 1
+                diaFechamento = 30 + diaFechamento;
             }
             periodoFechamento[i] = diaFechamento;
         }
 
         // Encontrar o menor e maior valor do período de fechamento
-        int menorDiaFechamento = periodoFechamento[0];
+        int menorDiaFechamento = periodoFechamento[6];
         int maiorDiaFechamento = periodoFechamento[0];
-        for (int i = 1; i < periodoFechamento.length; i++) {
-            if (periodoFechamento[i] < menorDiaFechamento) {
-                menorDiaFechamento = periodoFechamento[i];
-            }
-            if (periodoFechamento[i] > maiorDiaFechamento) {
-                maiorDiaFechamento = periodoFechamento[i];
-            }
-        }
 
         // Imprime o período de fechamento e outras informações
         System.out.print("Período de Fechamento: ");
