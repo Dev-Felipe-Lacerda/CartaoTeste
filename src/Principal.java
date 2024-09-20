@@ -173,22 +173,26 @@ public class Principal extends Application {
         totalLabel.setVisible(true);
     }
 
-    private void handleOption3(Button faturaButton, DropShadow shadow, Button option1, Button option2, Button option3) {
+    private void handleOption3(List<Button> faturaButtons, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
-        HBox faturasHBox = new HBox();
-        faturasHBox.setAlignment(Pos.CENTER);
-        HBox.setHgrow(faturaButton, Priority.ALWAYS);
-        faturasHBox.getChildren().add(faturaButton);
 
-        VBox contentVBox = new VBox(10);
-        contentVBox.getChildren().add(faturasHBox);
+        // Cria um VBox para organizar os botões de fatura
+        VBox faturasVBox = new VBox(10); // 10 é o espaçamento entre os botões
+        faturasVBox.setAlignment(Pos.CENTER);
 
-        ScrollPane scrollPane = new ScrollPane(contentVBox);
+        // Adiciona cada botão de fatura ao VBox
+        for (Button faturaButton : faturaButtons) {
+            faturaButton.maxWidthProperty().bind(rightVBox.widthProperty().subtract(10));
+            faturasVBox.getChildren().add(faturaButton);
+        }
+
+        ScrollPane scrollPane = new ScrollPane(faturasVBox);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         rightVBox.getChildren().add(scrollPane);
 
+        // Aplica o gradiente ao rightVBox
         LinearGradient gradient = new LinearGradient(
                 1, 0, 0, 1,
                 true,
@@ -199,10 +203,10 @@ public class Principal extends Application {
         BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
         rightVBox.setBackground(new Background(backgroundFill));
 
+        // Gerencia os efeitos visuais dos botões de opções
         option1.setEffect(null);
         option2.setEffect(null);
         option3.setEffect(shadow);
-        faturaButton.maxWidthProperty().bind(rightVBox.widthProperty().subtract(0));
     }
 
     private GridPane createMainGrid() {
@@ -421,29 +425,26 @@ public class Principal extends Application {
         totalLabel.setBackground(null);
     }
 
-    public Button faturaEVencimentos() {
+    public List<Button> faturaEVencimentos() {
         int vencimento = vencimentoSelecionado != null ? vencimentoSelecionado : 1;
-
-        // Armazena os meses e as informações de cada dívida
         Map<Integer, List<String>> mesesDividas = new TreeMap<>();
         double valorTotal = 0.0;
-        List<Integer> periodoFechamentoList = new ArrayList<>();
+        List<Button> faturaButtons = new ArrayList<>();
 
         // Calcula o período de pagamento
-        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
+        int[] periodoFechamento = new int[7];
         for (int i = 0; i < 7; i++) {
-            int diaFechamento = vencimento - i; //Para calcular dias anteriores ao vencimento
+            int diaFechamento = vencimento - i;
             if (diaFechamento < 1) {
-                // Ajusta se o dia ficar menor que 1
                 diaFechamento = 30 + diaFechamento;
             }
             periodoFechamento[i] = diaFechamento;
         }
 
-        // Encontrar o menor e maior valor do período de fechamento
         int menorDiaFechamento = periodoFechamento[6];
         int maiorDiaFechamento = periodoFechamento[0];
 
+        // Processa as dívidas
         for (Node node : dividasFields.getChildren()) {
             if (node instanceof HBox hbox) {
                 ComboBox<String> nichoCombo = (ComboBox<String>) hbox.getChildren().get(0);
@@ -454,7 +455,6 @@ public class Principal extends Application {
                 ComboBox<Integer> mesDividaCombo = (ComboBox<Integer>) hbox.getChildren().get(5);
 
                 try {
-                    String tipoDivida = nichoCombo.getValue();
                     String nomeDivida = nomeField.getText();
                     double valor = Double.parseDouble(valorField.getText().replace(",", "."));
                     int parcelas = parcelasCombo.getValue();
@@ -462,119 +462,73 @@ public class Principal extends Application {
                     int mesDivida = mesDividaCombo.getValue();
 
                     double valorParcela = valor / parcelas;
-
-                    // Verificação se -> Compra está dentro do período de pagamento
                     boolean dentroPeriodoPagamento = diaDivida >= menorDiaFechamento && diaDivida <= maiorDiaFechamento;
 
-                    // Ajusta o mês inicial da dívida se estiver dentro do período de pagamento
                     if (dentroPeriodoPagamento) {
-                        mesDivida = (mesDivida % 12) + 1; // Move para o próximo mês
+                        mesDivida = (mesDivida % 12) + 1;  // Se estiver no período de pagamento, muda para o próximo mês
                     }
 
-                    // Caso esteja, então mesDivida+++
                     for (int i = 0; i < parcelas; i++) {
                         int mesAtual = (mesDivida + i - 1) % 12 + 1;
                         int parcelaAtual = i + 1;
 
                         String infoDivida = String.format(
-                                "Dívida: %s, Tipo: %s, Valor: %.2f, Parcelas: %d, Parcela Atual: %d/%d, Data da Compra: %d/%d",
-                                nomeDivida, tipoDivida, valorParcela, parcelas, parcelaAtual, parcelas, diaDivida, mesDivida
+                                "Dívida: %s, Valor da Parcela: %.2f, Parcela Atual: %d/%d, Data da Compra: %d/%d",
+                                nomeDivida, valorParcela, parcelaAtual, parcelas, diaDivida, mesDivida
                         );
 
-                        // Adiciona a dívida ao mês correspondente
+                        // Agrupa as dívidas por mês
                         mesesDividas.computeIfAbsent(mesAtual, k -> new ArrayList<>()).add(infoDivida);
                     }
 
                     valorTotal += valor;
-                    periodoFechamentoList.add(vencimento);
 
-                } catch (NumberFormatException ignored) {
-                    // Ignora dívidas com valores incorretos
-                }
+                } catch (NumberFormatException ignored) {}
             }
         }
 
-        // Exibe os detalhes de cada dívida
-        System.out.println("Faturas por Mês:");
+        // Cria botões de fatura para cada mês distinto
         for (Map.Entry<Integer, List<String>> entry : mesesDividas.entrySet()) {
-            int mes = entry.getKey();
+            int mesDivida = entry.getKey();
             List<String> dividas = entry.getValue();
             double totalFaturaMes = dividas.stream()
-                    .mapToDouble(d -> Double.parseDouble(d.split(", Valor: ")[1].split(",")[0]))
+                    .mapToDouble(d -> Double.parseDouble(d.split(", Valor da Parcela: ")[1].split(",")[0]))
                     .sum();
 
-            System.out.println("Mês " + mes + ":");
-            for (String divida : dividas) {
-                System.out.println("  " + divida);
-            }
-            System.out.println("  Valor Total da Fatura: " + String.format("%.2f", totalFaturaMes));
+            // Texto do botão
+            String textoBotao = String.format(
+                    "Fatura do mês %d: %.2f | Período de Pagamento: %d até %d",
+                    mesDivida, totalFaturaMes, menorDiaFechamento, maiorDiaFechamento
+            );
+
+            // Configurações do botão
+            Button faturaButton = new Button(textoBotao);
+            faturaButton.setStyle(
+                    "-fx-background-color: #E0A24C4D; " +
+                            "-fx-font-size: 26px; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-border-color: transparent; " +
+                            "-fx-border-radius: 4px; " +
+                            "-fx-padding: 8 16; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
+            );
+
+            boolean[] isExpanded = {false};
+
+            faturaButton.setOnAction(event -> {
+                if (isExpanded[0]) {
+                    faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
+                    faturaButton.setText(textoBotao); // Retorna ao texto original
+                } else {
+                    faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
+                    faturaButton.setText("Expandido"); // Texto alterado quando expandido
+                }
+                isExpanded[0] = !isExpanded[0]; // Inverte o estado
+            });
+            faturaButtons.add(faturaButton);
         }
-
-        // Imprime o período de fechamento e outras informações
-        System.out.print("Período de Fechamento: ");
-        for (int j : periodoFechamento) {
-            System.out.print(j + " ");
-        }
-
-        System.out.println();
-        System.out.println("Período de Pagamento: do dia " + menorDiaFechamento + " até " + maiorDiaFechamento);
-        System.out.println("Valor Total: " + String.format("%.2f", valorTotal));
-        System.out.println("Meses Distintos: " + mesesDividas.size());
-        System.out.println("Total de Meses: " + mesesDividas.size());
-        System.out.println("Valor por Parcela: " + String.format("%.2f", (valorTotal / mesesDividas.size())));
-
-        return getButton();
-    }
-
-    private Button getButton() {
-        Button faturaButton = new Button("Fatura do mês");
-        boolean[] isExpanded = {false};
-
-        faturaButton.setStyle(  "-fx-background-color: #E0A24C4D; " +
-                "-fx-font-size: 26px; " +
-                "-fx-font-weight: bold; " +
-                "-fx-text-fill: white; " +
-                "-fx-border-color: transparent; " +
-                "-fx-border-radius: 4px; " +
-                "-fx-padding: 8 16; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
-        );
-
-        faturaButton.setOnMouseEntered(event -> faturaButton.setStyle(
-                "-fx-background-color: #89632F4D; " +
-                        "-fx-font-size: 26px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-border-color: transparent; " +
-                        "-fx-border-radius: 4px; " +
-                        "-fx-padding: 8 16; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
-        ));
-
-        faturaButton.setOnMouseExited(event -> faturaButton.setStyle(
-                "-fx-background-color: #E0A24C4D; " +
-                        "-fx-font-size: 26px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-border-color: transparent; " +
-                        "-fx-border-radius: 4px; " +
-                        "-fx-padding: 8 16; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
-        ));
-
-        faturaButton.setOnAction(event -> {
-            if (isExpanded[0]) {
-                faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
-                faturaButton.setText("Fatura do mês");
-            }
-            if (!isExpanded[0]) {
-                faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
-                faturaButton.setText("Expandido");
-            }
-            isExpanded[0] = !isExpanded[0];
-        });
-
-        return faturaButton;
+        return faturaButtons;
     }
 
     public static void main(String[] args) {
