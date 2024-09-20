@@ -240,7 +240,7 @@ public class Principal extends Application {
         ComboBox<Integer> vencimentoCombo = new ComboBox<>();
         UIConfig.configureComboBox(vencimentoCombo);
         vencimentoCombo.getItems().addAll(divida.getDiaDivida());
-        vencimentoCombo.getSelectionModel().selectFirst();
+        vencimentoCombo.setPromptText("Dia");
         vencimentoCombo.setMinWidth(100);
         vencimentoCombo.setMaxWidth(100);
         GridPane.setHgrow(vencimentoCombo, Priority.NEVER);
@@ -340,17 +340,17 @@ public class Principal extends Application {
 
         ComboBox<Integer> diaDividaCombo = new ComboBox<>();
         UIConfig.configureComboBox(diaDividaCombo);
-        diaDividaCombo.setMaxWidth(80);
-        diaDividaCombo.setMinWidth(80);
+        diaDividaCombo.setMaxWidth(90);
+        diaDividaCombo.setMinWidth(90);
         diaDividaCombo.getItems().addAll(divida.getDiaDivida());
-        diaDividaCombo.getSelectionModel().selectFirst();
+        diaDividaCombo.setPromptText("Dia");
 
         ComboBox<Integer> mesDividaCombo = new ComboBox<>();
         UIConfig.configureComboBox(mesDividaCombo);
-        mesDividaCombo.setMaxWidth(80);
-        mesDividaCombo.setMinWidth(80);
+        mesDividaCombo.setMaxWidth(90);
+        mesDividaCombo.setMinWidth(90);
         mesDividaCombo.getItems().addAll(divida.getMesDivida());
-        mesDividaCombo.getSelectionModel().selectFirst();
+        mesDividaCombo.setPromptText("Mês");
 
         Button excluirButton = getButton(dividaRow);
 
@@ -458,13 +458,16 @@ public class Principal extends Application {
                                 nomeDivida, tipoDivida, valorParcela, parcelas, parcelaAtual, parcelas, diaDivida, mesDivida
                         );
 
+                        // Adiciona a dívida ao mês correspondente
                         mesesDividas.computeIfAbsent(mesAtual, k -> new ArrayList<>()).add(infoDivida);
                     }
 
                     valorTotal += valor;
+                    // Adiciona o vencimento ao período de fechamento de cada dívida
                     periodoFechamentoList.add(vencimento);
 
                 } catch (NumberFormatException ignored) {
+                    // Ignora dívidas com valores incorretos
                 }
             }
         }
@@ -507,6 +510,7 @@ public class Principal extends Application {
             }
         }
 
+        // Imprime o período de fechamento e outras informações
         System.out.print("Período de Fechamento: ");
         for (int j : periodoFechamento) {
             System.out.print(j + " ");
