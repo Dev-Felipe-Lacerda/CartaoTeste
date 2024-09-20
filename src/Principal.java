@@ -429,6 +429,21 @@ public class Principal extends Application {
         double valorTotal = 0.0;
         List<Integer> periodoFechamentoList = new ArrayList<>();
 
+        // Calcula o período de pagamento
+        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
+        for (int i = 0; i < 7; i++) {
+            int diaFechamento = vencimento - i; //Para calcular dias anteriores ao vencimento
+            if (diaFechamento < 1) {
+                // Ajusta se o dia ficar menor que 1
+                diaFechamento = 30 + diaFechamento;
+            }
+            periodoFechamento[i] = diaFechamento;
+        }
+
+        // Encontrar o menor e maior valor do período de fechamento
+        int menorDiaFechamento = periodoFechamento[6];
+        int maiorDiaFechamento = periodoFechamento[0];
+
         for (Node node : dividasFields.getChildren()) {
             if (node instanceof HBox hbox) {
                 ComboBox<String> nichoCombo = (ComboBox<String>) hbox.getChildren().get(0);
@@ -448,7 +463,15 @@ public class Principal extends Application {
 
                     double valorParcela = valor / parcelas;
 
-                    // Adiciona os meses cobertos pela dívida e formata a string para cada mês
+                    // Verificação se -> Compra está dentro do período de pagamento
+                    boolean dentroPeriodoPagamento = diaDivida >= menorDiaFechamento && diaDivida <= maiorDiaFechamento;
+
+                    // Ajusta o mês inicial da dívida se estiver dentro do período de pagamento
+                    if (dentroPeriodoPagamento) {
+                        mesDivida = (mesDivida % 12) + 1; // Move para o próximo mês
+                    }
+
+                    // Caso esteja, então mesDivida+++
                     for (int i = 0; i < parcelas; i++) {
                         int mesAtual = (mesDivida + i - 1) % 12 + 1;
                         int parcelaAtual = i + 1;
@@ -463,7 +486,6 @@ public class Principal extends Application {
                     }
 
                     valorTotal += valor;
-                    // Adiciona o vencimento ao período de fechamento de cada dívida
                     periodoFechamentoList.add(vencimento);
 
                 } catch (NumberFormatException ignored) {
@@ -485,23 +507,8 @@ public class Principal extends Application {
             for (String divida : dividas) {
                 System.out.println("  " + divida);
             }
-            System.out.println("  Valor Total da Fatura: " + totalFaturaMes);
+            System.out.println("  Valor Total da Fatura: " + String.format("%.2f", totalFaturaMes));
         }
-
-        // Verifica o período de fechamento
-        int[] periodoFechamento = new int[7]; // Array para armazenar os 7 dias de fechamento
-        for (int i = 0; i < 7; i++) {
-            int diaFechamento = vencimento - i; //Para calcular dias anteriores ao vencimento
-            if (diaFechamento < 1) {
-                // Ajusta se o dia ficar menor que 1
-                diaFechamento = 30 + diaFechamento;
-            }
-            periodoFechamento[i] = diaFechamento;
-        }
-
-        // Encontrar o menor e maior valor do período de fechamento
-        int menorDiaFechamento = periodoFechamento[6];
-        int maiorDiaFechamento = periodoFechamento[0];
 
         // Imprime o período de fechamento e outras informações
         System.out.print("Período de Fechamento: ");
@@ -511,10 +518,10 @@ public class Principal extends Application {
 
         System.out.println();
         System.out.println("Período de Pagamento: do dia " + menorDiaFechamento + " até " + maiorDiaFechamento);
-        System.out.println("Valor Total: " + valorTotal);
+        System.out.println("Valor Total: " + String.format("%.2f", valorTotal));
         System.out.println("Meses Distintos: " + mesesDividas.size());
         System.out.println("Total de Meses: " + mesesDividas.size());
-        System.out.println("Valor por Parcela: " + (valorTotal / mesesDividas.size()));
+        System.out.println("Valor por Parcela: " + String.format("%.2f", (valorTotal / mesesDividas.size())));
 
         return getButton();
     }
