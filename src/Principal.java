@@ -24,8 +24,9 @@ public class Principal extends Application {
     private Integer vencimentoSelecionado;
     private int rowcount=0;
 
-    private static final String BUTTON_STYLE = "-fx-background-color: #0C0812F2; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;";
-    private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + " -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 1, 0.1, 0, 0);";
+    private static final String BUTTON_STYLE = "-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-background-radius: 10; -fx-border-radius: 10; -fx-font-weight: bold; -fx-text-fill: white;";
+    private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + "-fx-background-color: #0C0812F2; -fx-font-size: 16px;" +
+            "-fx-font-weight: bold; -fx-background-radius: 10; -fx-border-radius: 10;-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0); ";
 
     @Override
     public void start(Stage primaryStage) {
@@ -38,7 +39,7 @@ public class Principal extends Application {
         rightVBox = new VBox(10);
         rightVBox.setAlignment(Pos.CENTER);
         rightVBox.setPrefSize(900, 600);
-        rightVBox.setStyle("-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #8A2BE2, #FF69B4);");
+        rightVBox.setStyle("-fx-background-color: #1A1A1A");
         rightVBox.setPadding(Insets.EMPTY);
 
         // Inicializa dividasFields
@@ -56,10 +57,10 @@ public class Principal extends Application {
 
         // VBox para armazenar os botões na lateral esquerda
         VBox leftPane = new VBox();
-        leftPane.setPrefSize(270, 600);
-        leftPane.setBackground(createBackground());
+        leftPane.setPrefSize(220, 600);
+        leftPane.setStyle("-fx-background-color: #1A1A1A");
         leftPane.setAlignment(Pos.CENTER);
-        leftPane.setSpacing(20);
+        leftPane.setSpacing(40);
 
         // Inicializa o totalLabel
         totalLabel = new Label("Total das Dívidas: 0.00");
@@ -71,29 +72,24 @@ public class Principal extends Application {
         // Sombra branca
         DropShadow shadow = new DropShadow();
         shadow.setColor(Color.web("#FFFFFF80"));
-        shadow.setRadius(20);
-        shadow.setSpread(0.001);
+        shadow.setRadius(1);
+        shadow.setSpread(1);
 
         // Declaração dos botões
         Button option1 = new Button("Cartão");
+        UIConfig.configureButton(option1);
         Button option2 = new Button("Dívidas");
-        Button option3 = new Button("Fatura e Vencimentos");
+        UIConfig.configureButton(option2);
+        Button option3 = new Button("Fatura");
+        UIConfig.configureButton(option3);
 
         // Configurações para cada botão
-        option1.setStyle("-fx-background-color: #0000001A ; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option1.setOnAction(e -> handleOption(createMainGrid(), shadow, option1, option2, option3));
-        option2.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option2.setOnAction(e -> handleOption2(createAddButton(), shadow, option1, option2, option3));
-        option3.setStyle("-fx-background-color: #0000001A; -fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
         option3.setOnAction(e -> handleOption3(faturaEVencimentos(), shadow, option1, option2, option3));
 
         // Adiciona os botões na lateral esquerda
         leftPane.getChildren().addAll(option1, option2, option3);
-        leftPane.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            option1.setMinWidth(newWidth.doubleValue());
-            option2.setMinWidth(newWidth.doubleValue());
-            option3.setMinWidth(newWidth.doubleValue());
-        });
 
         // Layout principal
         BorderPane root = new BorderPane();
@@ -114,16 +110,7 @@ public class Principal extends Application {
 
         rightVBox.getChildren().clear();
         rightVBox.getChildren().addAll(mainGrid1);
-
-        LinearGradient gradient = new LinearGradient(
-                1, 0, 0, 1,
-                true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#3E718F")),
-                new Stop(1, Color.web("#244355"))
-        );
-
-        BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
-        rightVBox.setBackground(new Background(backgroundFill));
+        rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
         // Adiciona o DropShadow aos botões
         option1.setEffect(shadow);
@@ -150,17 +137,7 @@ public class Principal extends Application {
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         rightVBox.getChildren().add(scrollPane);
-
-        // Aplicando o background
-        LinearGradient gradient = new LinearGradient(
-                1, 0, 0, 1,
-                true,
-                CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#4AAC90")),
-                new Stop(1, Color.web("#31725F"))
-        );
-        BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
-        rightVBox.setBackground(new Background(backgroundFill));
+        rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
         option1.setEffect(null);
         option2.setEffect(shadow);
@@ -172,6 +149,7 @@ public class Principal extends Application {
         }
         totalLabel.setVisible(true);
     }
+
 
     private void handleOption3(List<Button> faturaButtons, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
@@ -191,17 +169,7 @@ public class Principal extends Application {
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         rightVBox.getChildren().add(scrollPane);
-
-        // Aplica o gradiente ao rightVBox
-        LinearGradient gradient = new LinearGradient(
-                1, 0, 0, 1,
-                true,
-                CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#E0A24C")),
-                new Stop(1, Color.web("#89632F"))
-        );
-        BackgroundFill backgroundFill = new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY);
-        rightVBox.setBackground(new Background(backgroundFill));
+        rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
         // Gerencia os efeitos visuais dos botões de opções
         option1.setEffect(null);
@@ -281,19 +249,6 @@ public class Principal extends Application {
         return addButton;
     }
 
-    private Background createBackground() {
-        return new Background(new BackgroundFill(
-                new LinearGradient(
-                        0, 0, 1, 1,
-                        true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#3D8E77")), // Cor inicial
-                        new Stop(0.5, Color.web("#3D708E")), // Cor inicial
-                        new Stop(1, Color.web("#3D578E")) // Cor final
-                ),
-                CornerRadii.EMPTY, Insets.EMPTY
-        ));
-    }
-
     private void addDividaFields() {
         rowcount++;
         if (!labelsAdded) {
@@ -331,16 +286,40 @@ public class Principal extends Application {
         nomeDividaField.setMaxWidth(140);
         nomeDividaField.setMinWidth(140);
         nomeDividaField.setPromptText("Ex: Roupas");
-        nomeDividaField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+        nomeDividaField.setAlignment(Pos.CENTER);
+        nomeDividaField.setStyle("-fx-background-color: #0C0812F2; "
+                + "-fx-font-size: 16px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: white; "
+                + "-fx-background-radius: 10; "
+                + "-fx-alignment: center;");
 
-        TextField vlDivida = new TextField();
+        nomeDividaField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                nomeDividaField.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: white; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0);");
+            } else {
+                nomeDividaField.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: white; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-alignment: center;");
+            }
+        });
+
+    TextField vlDivida = new TextField();
         UIConfig.configureTextField(vlDivida);
         vlDivida.setPromptText("0,00");
 
         ComboBox<Integer> parcelasCombo = new ComboBox<>();
         UIConfig.configureComboBox(parcelasCombo);
         parcelasCombo.getItems().addAll(divida.getParcelas());
-        parcelasCombo.getSelectionModel().selectFirst();
+        parcelasCombo.setPromptText("Ex: 3x");
 
         ComboBox<Integer> diaDividaCombo = new ComboBox<>();
         UIConfig.configureComboBox(diaDividaCombo);
@@ -374,7 +353,7 @@ public class Principal extends Application {
 
     private Button getButton(HBox dividaRow) {
         Button excluirButton = new Button("Excluir");
-        excluirButton.setStyle("-fx-background-color:#921710 ; -fx-text-fill: white; -fx-font-weight: bold;");
+        excluirButton.setStyle("-fx-background-color:#921710 ; -fx-background-radius: 10; -fx-border-radius: 10; -fx-text-fill: white; -fx-font-weight: bold;");
         excluirButton.setMinHeight(35);
         excluirButton.setOnAction(e -> {
             rowcount--;
@@ -502,33 +481,38 @@ public class Principal extends Application {
             );
 
             // Configurações do botão
-            Button faturaButton = new Button(textoBotao);
-            faturaButton.setStyle(
-                    "-fx-background-color: #E0A24C4D; " +
-                            "-fx-font-size: 26px; " +
-                            "-fx-font-weight: bold; " +
-                            "-fx-text-fill: white; " +
-                            "-fx-border-color: transparent; " +
-                            "-fx-border-radius: 4px; " +
-                            "-fx-padding: 8 16; " +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
-            );
-
-            boolean[] isExpanded = {false};
-
-            faturaButton.setOnAction(event -> {
-                if (isExpanded[0]) {
-                    faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
-                    faturaButton.setText(textoBotao); // Retorna ao texto original
-                } else {
-                    faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
-                    faturaButton.setText("Expandido"); // Texto alterado quando expandido
-                }
-                isExpanded[0] = !isExpanded[0]; // Inverte o estado
-            });
+            Button faturaButton = getButton(textoBotao);
             faturaButtons.add(faturaButton);
         }
         return faturaButtons;
+    }
+
+    private static Button getButton(String textoBotao) {
+        Button faturaButton = new Button(textoBotao);
+        faturaButton.setStyle(
+                "-fx-background-color: #E0A24C4D; " +
+                        "-fx-font-size: 26px; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-border-color: transparent; " +
+                        "-fx-border-radius: 4px; " +
+                        "-fx-padding: 8 16; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0.5, 0, 2);"
+        );
+
+        boolean[] isExpanded = {false};
+
+        faturaButton.setOnAction(event -> {
+            if (isExpanded[0]) {
+                faturaButton.setPrefHeight(faturaButton.getHeight() / 1.5);
+                faturaButton.setText(textoBotao); // Retorna ao texto original
+            } else {
+                faturaButton.setPrefHeight(faturaButton.getHeight() * 1.5);
+                faturaButton.setText("Expandido"); // Texto alterado quando expandido
+            }
+            isExpanded[0] = !isExpanded[0]; // Inverte o estado
+        });
+        return faturaButton;
     }
 
     public static void main(String[] args) {

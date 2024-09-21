@@ -1,3 +1,4 @@
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -15,7 +16,13 @@ public class UIConfig {
         comboBox.setPrefWidth(115);
         comboBox.setMaxWidth(115);
         comboBox.setMinWidth(115);
-        comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+        comboBox.setStyle("-fx-background-color: #0C0812F2; "
+                + "-fx-font-size: 16px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: white; "
+                + "-fx-background-radius: 10; "
+                + "-fx-border-radius: 10;");
+
         comboBox.setCellFactory(new Callback<>() {
             @Override
             public ListCell<Integer> call(ListView<Integer> param) {
@@ -29,9 +36,19 @@ public class UIConfig {
                         } else {
                             setText(item.toString());
                             setTextFill(Color.WHITE);
-                            setStyle("-fx-background-color: #1C1C1C; -fx-font-size: 16px; -fx-font-weight: bold;");
-                            setOnMouseEntered(event -> setStyle("-fx-background-color: #E0E0E0; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;"));
-                            setOnMouseExited(event -> setStyle("-fx-background-color: #1C1C1C; -fx-font-size: 16px; -fx-font-weight: bold;"));
+                            setStyle("-fx-background-color: #1C1C1C; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-border-radius: 10;");
+                            setOnMouseEntered(event -> setStyle("-fx-background-color: #E0E0E0; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-text-fill: black; "
+                                    + "-fx-border-radius: 10;"));
+                            setOnMouseExited(event -> setStyle("-fx-background-color: #1C1C1C; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-border-radius: 10;"));
                         }
                     }
                 };
@@ -48,16 +65,31 @@ public class UIConfig {
                 } else {
                     setText(item.toString());
                     setTextFill(Color.WHITE);
-                    setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
+                    setStyle("-fx-background-color: #0C0812F2; "
+                            + "-fx-font-size: 16px; "
+                            + "-fx-font-weight: bold; "
+                            + "-fx-background-radius: 10; "
+                            + "-fx-border-radius: 10;");
                 }
             }
         });
 
         comboBox.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
+                comboBox.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: black; "
+                        + "-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0); "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-border-radius: 10;");
             } else {
-                comboBox.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;");
+                comboBox.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: black; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-border-radius: 10;");
             }
         });
     }
@@ -66,7 +98,13 @@ public class UIConfig {
         comboString.setPrefWidth(175);
         comboString.setMaxWidth(175);
         comboString.setMinWidth(175);
-        comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;");
+        comboString.setStyle("-fx-background-color: #0C0812F2; "
+                + "-fx-font-size: 16px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: black; "
+                + "-fx-background-radius: 10; "
+                + "-fx-border-radius: 10;");
+
         comboString.setCellFactory(new Callback<>() {
             @Override
             public ListCell<String> call(ListView<String> param) {
@@ -80,9 +118,19 @@ public class UIConfig {
                         } else {
                             setText(item);
                             setTextFill(Color.WHITE);
-                            setStyle("-fx-background-color: #1C1C1C; -fx-font-size: 16px; -fx-font-weight: bold;");
-                            setOnMouseEntered(event -> setStyle("-fx-background-color: #E0E0E0; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;"));
-                            setOnMouseExited(event -> setStyle("-fx-background-color: #1C1C1C; -fx-font-size: 16px; -fx-font-weight: bold;"));
+                            setStyle("-fx-background-color: #1C1C1C; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-border-radius: 10;");
+                            setOnMouseEntered(event -> setStyle("-fx-background-color: #E0E0E0; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-text-fill: black; "
+                                    + "-fx-border-radius: 10;"));
+                            setOnMouseExited(event -> setStyle("-fx-background-color: #1C1C1C; "
+                                    + "-fx-font-size: 16px; "
+                                    + "-fx-font-weight: bold; "
+                                    + "-fx-border-radius: 10;"));
                         }
                     }
                 };
@@ -99,16 +147,31 @@ public class UIConfig {
                 } else {
                     setText(item);
                     setTextFill(Color.WHITE);
-                    setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold;");
+                    setStyle("-fx-background-color: #0C0812F2; "
+                            + "-fx-font-size: 16px; "
+                            + "-fx-font-weight: bold; "
+                            + "-fx-background-radius: 10; "
+                            + "-fx-border-radius: 10;");
                 }
             }
         });
 
         comboString.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
+                comboString.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: black; "
+                        + "-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0); "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-border-radius: 10;");
             } else {
-                comboString.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;");
+                comboString.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: black; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-border-radius: 10;");
             }
         });
     }
@@ -118,13 +181,30 @@ public class UIConfig {
         textField.setPrefWidth(85);
         textField.setMaxWidth(85);
         textField.setMinWidth(85);
-        textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+        textField.setStyle("-fx-background-color: #0C0812F2; "
+                + "-fx-font-size: 16px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-text-fill: white; "
+                + "-fx-background-radius: 10; "
+                + "-fx-alignment: center;");
+
+        textField.setAlignment(Pos.CENTER);
 
         textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center; -fx-effect: dropshadow(gaussian, white, 1, 0.01, 0, 0);");
+                textField.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: white; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0);");
             } else {
-                textField.setStyle("-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;");
+                textField.setStyle("-fx-background-color: #0C0812F2; "
+                        + "-fx-font-size: 16px; "
+                        + "-fx-font-weight: bold; "
+                        + "-fx-text-fill: white; "
+                        + "-fx-background-radius: 10; "
+                        + "-fx-alignment: center;");
             }
         });
     }
@@ -138,5 +218,17 @@ public class UIConfig {
                 return null;
             }
         });
+    }
+    public static void configureButton(Button bttn){
+        bttn.setMinWidth(140);
+        bttn.setMinHeight(60);
+        bttn.setMaxWidth(140);
+        bttn.setMaxHeight(60);
+        bttn.setStyle("-fx-background-color: #0000001A; "
+                + "-fx-text-fill: white; "
+                + "-fx-font-size: 22px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-background-radius: 30; "
+                + "-fx-border-radius: 30;");
     }
 }
