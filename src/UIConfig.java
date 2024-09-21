@@ -220,11 +220,11 @@ public class UIConfig {
         });
     }
     public static void configureButton(Button bttn){
-        bttn.setMinWidth(140);
-        bttn.setMinHeight(60);
-        bttn.setMaxWidth(140);
-        bttn.setMaxHeight(60);
-        bttn.setStyle("-fx-background-color: #0000001A; "
+        bttn.setMinWidth(160);
+        bttn.setMinHeight(80);
+        bttn.setMaxWidth(160);
+        bttn.setMaxHeight(80);
+        bttn.setStyle("-fx-background-color: #00000080; "
                 + "-fx-text-fill: white; "
                 + "-fx-font-size: 22px; "
                 + "-fx-font-weight: bold; "

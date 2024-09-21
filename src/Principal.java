@@ -27,6 +27,7 @@ public class Principal extends Application {
     private static final String BUTTON_STYLE = "-fx-background-color: #0C0812F2; -fx-font-size: 16px; -fx-background-radius: 10; -fx-border-radius: 10; -fx-font-weight: bold; -fx-text-fill: white;";
     private static final String BUTTON_FOCUSED_STYLE = BUTTON_STYLE + "-fx-background-color: #0C0812F2; -fx-font-size: 16px;" +
             "-fx-font-weight: bold; -fx-background-radius: 10; -fx-border-radius: 10;-fx-effect: dropshadow(gaussian, #1AFFFFFF, 1, 1, 0, 0); ";
+    private static final String LABEL_MODEL = "-fx-font-size: 38px;-fx-font-weight: bold; -fx-text-fill: white;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -49,7 +50,7 @@ public class Principal extends Application {
 
         // Label que será atualizada com base na opção selecionada
         Label label = new Label("Informe seus dados da fatura!");
-        label.setStyle("-fx-font-size: 38px;-fx-font-weight: bold; -fx-text-fill: white;");
+        label.setStyle(LABEL_MODEL);
         rightVBox.getChildren().add(label);
 
         // Ajuste a largura do totalLabel conforme a largura do rightVBox
@@ -154,11 +155,55 @@ public class Principal extends Application {
     private void handleOption3(List<Button> faturaButtons, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
 
-        // Cria um VBox para organizar os botões de fatura
-        VBox faturasVBox = new VBox(10); // 10 é o espaçamento entre os botões
+        int limite = card.getLimiteCartao();
+        boolean hasLimite = limite != 0;
+        boolean hasDividas = false;
+        double totalDividas = 0.0;
+
+        for (Node node : dividasFields.getChildren()) {
+            if (node instanceof HBox hbox) {
+                TextField valorField = (TextField) hbox.getChildren().get(2);
+                if (!valorField.getText().isEmpty()) {
+                    double valor = Double.parseDouble(valorField.getText().replace(",", "."));
+                    if (valor > 0) {
+                        hasDividas = true;
+                        totalDividas += valor; // Acumula o valor das dívidas
+                    }
+                }
+            }
+        }
+
+        if (!hasLimite && !hasDividas) {
+            Label label = new Label("Não há limite ou dívida definidos.");
+            label.setStyle(LABEL_MODEL);
+            rightVBox.getChildren().add(label);
+            return;
+        }
+
+        if (hasLimite && !hasDividas) {
+            Label label = new Label("Não há dívidas definidas.");
+            label.setStyle(LABEL_MODEL);
+            rightVBox.getChildren().add(label);
+            return;
+        }
+
+        if (!hasLimite) {
+            Label label = new Label("Não há limite definido.");
+            label.setStyle(LABEL_MODEL);
+            rightVBox.getChildren().add(label);
+            return;
+        }
+
+        if (totalDividas > limite) {
+            Label label = new Label("Sua dívida excedeu o limite.");
+            label.setStyle(LABEL_MODEL);
+            rightVBox.getChildren().add(label);
+            return;
+        }
+
+        VBox faturasVBox = new VBox(10);
         faturasVBox.setAlignment(Pos.CENTER);
 
-        // Adiciona cada botão de fatura ao VBox
         for (Button faturaButton : faturaButtons) {
             faturaButton.maxWidthProperty().bind(rightVBox.widthProperty().subtract(10));
             faturasVBox.getChildren().add(faturaButton);
@@ -169,9 +214,7 @@ public class Principal extends Application {
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         rightVBox.getChildren().add(scrollPane);
-        rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
-        // Gerencia os efeitos visuais dos botões de opções
         option1.setEffect(null);
         option2.setEffect(null);
         option3.setEffect(shadow);
@@ -436,15 +479,22 @@ public class Principal extends Application {
                 try {
                     String nomeDivida = nomeField.getText();
                     double valor = Double.parseDouble(valorField.getText().replace(",", "."));
-                    int parcelas = parcelasCombo.getValue();
-                    int diaDivida = diaDividaCombo.getValue();
-                    int mesDivida = mesDividaCombo.getValue();
+
+                    // Verificações para evitar NullPointerException
+                    Integer parcelas = parcelasCombo.getValue();
+                    Integer diaDivida = diaDividaCombo.getValue();
+                    Integer mesDivida = mesDividaCombo.getValue();
+
+                    if (parcelas == null || diaDivida == null || mesDivida == null) {
+                        // Tratar o caso onde um dos ComboBoxes não tem valor selecionado
+                        continue; // Ignorar esta dívida
+                    }
 
                     double valorParcela = valor / parcelas;
                     boolean dentroPeriodoPagamento = diaDivida >= menorDiaFechamento && diaDivida <= maiorDiaFechamento;
 
                     if (dentroPeriodoPagamento) {
-                        mesDivida = (mesDivida % 12) + 1;  // Se estiver no período de pagamento, muda para o próximo mês
+                        mesDivida = (mesDivida % 12) + 1; // Muda para o próximo mês
                     }
 
                     for (int i = 0; i < parcelas; i++) {
@@ -462,7 +512,9 @@ public class Principal extends Application {
 
                     valorTotal += valor;
 
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                    // Aqui você pode adicionar um log ou mensagem de erro, se necessário
+                }
             }
         }
 
