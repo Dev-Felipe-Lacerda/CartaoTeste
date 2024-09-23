@@ -8,7 +8,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.stage.Stage;
-
 import java.util.*;
 
 public class Principal extends Application {
@@ -105,6 +104,11 @@ public class Principal extends Application {
 
     private void handleOption(GridPane mainGrid, DropShadow shadow, Button option1, Button option2, Button option3) {
         GridPane mainGrid1 = mainGrid;
+
+        option1.setEffect(shadow);
+        option2.setEffect(null);
+        option3.setEffect(null);
+
         if (mainGrid1 == null) {
             mainGrid1 = createMainGrid();  // Só cria o GridPane uma vez
         }
@@ -113,14 +117,15 @@ public class Principal extends Application {
         rightVBox.getChildren().addAll(mainGrid1);
         rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
-        // Adiciona o DropShadow aos botões
-        option1.setEffect(shadow);
-        option2.setEffect(null);
-        option3.setEffect(null);
     }
 
     private void handleOption2(Button addButton, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
+
+        option1.setEffect(null);
+        option2.setEffect(shadow);
+        option3.setEffect(null);
+
         VBox dividasAndButtonVBox = new VBox(10);
         dividasAndButtonVBox.setAlignment(Pos.CENTER);
         dividasAndButtonVBox.getChildren().addAll(dividasFields, addButton);
@@ -140,10 +145,6 @@ public class Principal extends Application {
         rightVBox.getChildren().add(scrollPane);
         rightVBox.setBackground(Background.fill(Color.web("#1A1A1A")));
 
-        option1.setEffect(null);
-        option2.setEffect(shadow);
-        option3.setEffect(null);
-
         if (isFirstTime) {
             addDividaFields();
             isFirstTime = false;
@@ -154,6 +155,10 @@ public class Principal extends Application {
 
     private void handleOption3(List<Button> faturaButtons, DropShadow shadow, Button option1, Button option2, Button option3) {
         rightVBox.getChildren().clear();
+
+        option1.setEffect(null);
+        option2.setEffect(null);
+        option3.setEffect(shadow);
 
         int limite = card.getLimiteCartao();
         boolean hasLimite = limite != 0;
@@ -214,10 +219,6 @@ public class Principal extends Application {
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         rightVBox.getChildren().add(scrollPane);
-
-        option1.setEffect(null);
-        option2.setEffect(null);
-        option3.setEffect(shadow);
     }
 
     private GridPane createMainGrid() {
